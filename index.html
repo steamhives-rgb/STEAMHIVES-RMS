@@ -148,6 +148,22 @@ td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
 tr:hover td{background:#f0f6f2}
 tr:last-child td{border-bottom:none}
 
+/* ── ATTENDANCE CHECKBOX BUTTONS ── */
+.att-checkbox-group{display:flex;gap:4px;flex-wrap:nowrap}
+.att-checkbox-btn{flex:1;min-width:60px;padding:6px 8px;border:2px solid #ddd;border-radius:6px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;transition:all .2s;background:#fff;color:#555}
+.att-checkbox-btn.present{border-color:#27ae60;background:#d4edda;color:#27ae60}
+.att-checkbox-btn.absent{border-color:#e74c3c;background:#fde8e8;color:#e74c3c}
+.att-checkbox-btn.late{border-color:#f39c12;background:#fff8e1;color:#f39c12}
+.att-checkbox-btn.holiday{border-color:#95a5a6;background:#ecf0f1;color:#95a5a6}
+.att-checkbox-btn:hover{opacity:0.8;transform:scale(1.05)}
+.att-checkbox-btn.checked{font-weight:700;border-width:3px;box-shadow:0 0 8px rgba(0,0,0,0.15)}
+
+/* ── STICKY COLUMNS ── */
+.att-table-wrapper{overflow-x:auto;position:relative}
+.att-table-fixed-col{position:sticky;left:0;background:#fff;z-index:10}
+.att-table-fixed-col-adm{min-width:80px}
+.att-table-fixed-col-name{min-width:150px}
+
 /* ── BADGES ── */
 .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
 .badge-A{background:#d4edda;color:#0a6640}.badge-B{background:#cce5ff;color:#004085}
@@ -382,6 +398,9 @@ tr:last-child td{border-bottom:none}
     <div class="nav-item" onclick="showPage('xlimport',this)">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="8,17 12,21 16,17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>Excel Import/Export
     </div>
+    <div class="nav-item" onclick="showPage('exportresults',this)">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Results
+    </div>
     <div class="nav-section">Reports</div>
     <div class="nav-item" onclick="showPage('reports',this)">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>Broadsheet
@@ -587,6 +606,38 @@ tr:last-child td{border-bottom:none}
         <div class="tbl-wrap">
           <table><thead><tr><th>Adm No.</th><th>Student</th><th>Class</th><th>Term/Session</th><th>Avg</th><th>Grade</th><th>Position</th><th>Actions</th></tr></thead><tbody id="results-tbody"></tbody></table>
         </div>
+      </div>
+    </div>
+
+    <!-- EXPORT RESULTS -->
+    <div class="page" id="page-exportresults">
+      <div class="card">
+        <div class="card-title">📊 Export Student Results</div>
+        <div class="alert alert-info">Query and bulk export student results as PDF. Filter by class, term, and result type.</div>
+        <div class="form-grid" style="margin-bottom:16px">
+          <div class="form-group">
+            <label>Class</label>
+            <select id="exp-class"><option value="">All Classes</option></select>
+          </div>
+          <div class="form-group">
+            <label>Term</label>
+            <select id="exp-term"><option value="">All Terms</option><option>1st Term</option><option>2nd Term</option><option>3rd Term</option></select>
+          </div>
+          <div class="form-group">
+            <label>Result Type</label>
+            <select id="exp-type"><option value="all">Both Mid-term & Full Term</option><option value="midterm">Mid-term Only</option><option value="full">Full Term Only</option></select>
+          </div>
+          <div class="form-group">
+            <label>Session</label>
+            <input type="text" id="exp-session" placeholder="e.g. 2025/2026"/>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="queryResults()">🔍 Query Results</button>
+          <button class="btn btn-gold" onclick="exportSelectedResultsPDF('all')">📄 Export All as PDF</button>
+          <button class="btn btn-outline" onclick="exportSelectedResultsPDF('selected')">📄 Export Selected</button>
+        </div>
+        <div id="export-results-area" style="margin-top:20px"></div>
       </div>
     </div>
 
@@ -1274,7 +1325,7 @@ function logout(){
 // ══════════════════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════════════════
-const pageMeta={dashboard:['Dashboard','School overview'],students:['Students','All registered students'],addstudent:['Add Student','Register a new student'],attendance:['Attendance','Student attendance tracking'],midterm:['Mid-term Test','Mid-term assessment results'],enterresult:['General Results','Final term results with CA + Exam'],viewresults:['View Results','Browse all results'],xlimport:['Excel Import / Export','Bulk result management via Excel'],reports:['Broadsheet','Class performance report'],coupons:['Result Access PINs','Generate result access PINs'],settings:['School Settings','Branding and configuration'],backup:['Backup & Restore','Data management']};
+const pageMeta={dashboard:['Dashboard','School overview'],students:['Students','All registered students'],addstudent:['Add Student','Register a new student'],attendance:['Attendance','Weekly attendance tracking'],midterm:['Mid-term Test','Mid-term assessment results'],enterresult:['General Results','Final term results with CA + Exam'],viewresults:['View Results','Browse all results'],exportresults:['Export Results','Query and bulk export results as PDF'],xlimport:['Excel Import / Export','Bulk result management via Excel'],reports:['Broadsheet','Class performance report'],coupons:['Result Access PINs','Generate result access PINs'],settings:['School Settings','Branding and configuration'],backup:['Backup & Restore','Data management']};
 
 function showPage(id,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1294,6 +1345,7 @@ function showPage(id,el){
   if(id==='reports')populateRptClass();
   if(id==='backup')renderBackupSummary();
   if(id==='xlimport')populateXlClass();
+  if(id==='exportresults'){populateExportClass();document.getElementById('export-results-area').innerHTML=''}
   if(id==='coupons'){document.getElementById('pins-display').style.display='none'; populatePinStudents();}
 }
 
@@ -2302,6 +2354,398 @@ function importAttendanceCSV(event){
   reader.readAsText(file);
   event.target.value = '';
 }
+
+// ══════════════════════════════════════════════════════════
+// WEEKLY ATTENDANCE MODULE
+// ══════════════════════════════════════════════════════════
+let currentWeekData = {};
+let selectedWeek = '';
+
+function buildWeekSelector(){
+  const term = document.getElementById('att-term').value;
+  const session = document.getElementById('att-session').value.trim();
+  if(!term || !session){showPopup('Select term and session first', 'warning');return}
+  
+  const weeks = DB.get('att_weeks_'+term+'_'+session, []);
+  const sel = document.getElementById('att-week');
+  sel.innerHTML = '<option value="">Select Week…</option>';
+  
+  if(weeks.length === 0){
+    const defaultWeeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8', 'Week 9', 'Week 10'];
+    defaultWeeks.forEach(w => {
+      const opt = document.createElement('option');
+      opt.value = w; opt.textContent = w;
+      sel.appendChild(opt);
+    });
+  } else {
+    weeks.forEach(w => {
+      const opt = document.createElement('option');
+      opt.value = w; opt.textContent = w;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+function loadWeekAttendance(){
+  const week = document.getElementById('att-week').value;
+  if(!week){showPopup('Select a week first', 'warning');return}
+  selectedWeek = week;
+  loadAttendanceStudents();
+}
+
+function loadAttendanceSettings(){}
+
+function loadAttendanceStudents(){
+  const cls = document.getElementById('att-class').value;
+  const term = document.getElementById('att-term').value;
+  const session = document.getElementById('att-session').value.trim();
+  const week = document.getElementById('att-week').value;
+  
+  if(!week){document.getElementById('attendance-area').innerHTML='';return}
+  
+  students = getStudents();
+  let filtered = cls ? students.filter(s => s.class === cls) : students;
+  filtered.sort((a,b) => a.name.localeCompare(b.name));
+  
+  // Load existing week attendance
+  const weekKey = 'att_week_'+term+'_'+session+'_'+week;
+  currentWeekData = DB.get(weekKey, {});
+  
+  showAttendanceTable(filtered, week, term, session);
+}
+
+function showAttendanceTable(students, week, term, session){
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const dayShort = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  
+  let html = `
+    <div class="card">
+      <div class="card-title">${week} Attendance (${students.length} students)</div>
+      <div class="att-table-wrapper">
+        <table style="font-size:12px">
+          <thead>
+            <tr>
+              <th class="att-table-fixed-col att-table-fixed-col-adm">Adm No</th>
+              <th class="att-table-fixed-col att-table-fixed-col-name">Student Name</th>
+              ${dayShort.map(d => `<th style="text-align:center;min-width:120px">${d}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${students.map(s => {
+              const studentKey = 'student_'+s.id;
+              const studentAttendance = currentWeekData[studentKey] || {};
+              return `
+              <tr>
+                <td class="att-table-fixed-col att-table-fixed-col-adm"><code style="font-size:11px">${s.adm}</code></td>
+                <td class="att-table-fixed-col att-table-fixed-col-name">${s.name}</td>
+                ${dayShort.map((d, idx) => {
+                  const status = studentAttendance[d.toLowerCase()] || '';
+                  return `
+                  <td style="padding:6px 4px">
+                    <div class="att-checkbox-group">
+                      <button class="att-checkbox-btn ${status==='present'?'checked present':''}" onclick="setAttendanceStatus('${s.id}','${d.toLowerCase()}','present',this)">✓ Pres</button>
+                      <button class="att-checkbox-btn ${status==='absent'?'checked absent':''}" onclick="setAttendanceStatus('${s.id}','${d.toLowerCase()}','absent',this)">✕ Abs</button>
+                      <button class="att-checkbox-btn ${status==='late'?'checked late':''}" onclick="setAttendanceStatus('${s.id}','${d.toLowerCase()}','late',this)">⏱ Late</button>
+                      <button class="att-checkbox-btn ${status==='holiday'?'checked holiday':''}" onclick="setAttendanceStatus('${s.id}','${d.toLowerCase()}','holiday',this)">☆ Hol</button>
+                    </div>
+                  </td>
+                  `;
+                }).join('')}
+              </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn btn-primary" onclick="saveWeekAttendance()">💾 Save Week Attendance</button>
+        <button class="btn btn-gold" onclick="showAttendanceAnalytics()">📊 View Analytics</button>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('attendance-area').innerHTML = html;
+}
+
+function setAttendanceStatus(studentId, day, status, btn){
+  const studentKey = 'student_' + studentId;
+  if(!currentWeekData[studentKey]) currentWeekData[studentKey] = {};
+  
+  // Uncheck all siblings
+  const siblings = btn.parentElement.querySelectorAll('.att-checkbox-btn');
+  siblings.forEach(s => {s.classList.remove('checked');s.classList.remove('present', 'absent', 'late', 'holiday')});
+  
+  // Set new status
+  currentWeekData[studentKey][day] = status;
+  btn.classList.add('checked', status);
+}
+
+function saveWeekAttendance(){
+  const term = document.getElementById('att-term').value;
+  const session = document.getElementById('att-session').value.trim();
+  const week = document.getElementById('att-week').value;
+  
+  if(!week || !term || !session){showPopup('Invalid selection', 'warning');return}
+  
+  const weekKey = 'att_week_'+term+'_'+session+'_'+week;
+  DB.set(weekKey, currentWeekData);
+  
+  showPopup(`✅ ${week} attendance saved!`, 'success');
+  loadAttendanceStudents();
+}
+
+function showAttendanceAnalytics(){
+  const term = document.getElementById('att-term').value;
+  const session = document.getElementById('att-session').value.trim();
+  const week = document.getElementById('att-week').value;
+  const cls = document.getElementById('att-class').value;
+  
+  students = getStudents();
+  let filtered = cls ? students.filter(s => s.class === cls) : students;
+  
+  // Compute analytics
+  const analytics = [];
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+  
+  filtered.forEach(s => {
+    const studentKey = 'student_' + s.id;
+    const studentAtt = currentWeekData[studentKey] || {};
+    
+    let presentCount = 0, absentCount = 0, lateCount = 0, holidayCount = 0;
+    days.forEach(d => {
+      const status = studentAtt[d];
+      if(status === 'present') presentCount++;
+      else if(status === 'absent') absentCount++;
+      else if(status === 'late') lateCount++;
+      else if(status === 'holiday') holidayCount++;
+    });
+    
+    analytics.push({
+      name: s.name, adm: s.adm, present: presentCount, absent: absentCount, late: lateCount, holiday: holidayCount
+    });
+  });
+  
+  // Class summary
+  let classPresentTotal = analytics.reduce((a,b) => a+b.present, 0);
+  let classAbsentTotal = analytics.reduce((a,b) => a+b.absent, 0);
+  let classLateTotal = analytics.reduce((a,b) => a+b.late, 0);
+  let classHolidayTotal = analytics.reduce((a,b) => a+b.holiday, 0);
+  let totalStudentDays = filtered.length * 5; // 5 school days
+  let attendanceRate = ((classPresentTotal + classLateTotal) / (totalStudentDays - classHolidayTotal) * 100).toFixed(1);
+  
+  let html = `
+    <div class="card">
+      <div class="card-title">📈 ${week} Analytics</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px">
+        <div style="background:#d4edda;padding:12px;border-radius:8px;text-align:center">
+          <div style="font-size:24px;font-weight:700;color:#27ae60">${classPresentTotal}</div>
+          <div style="font-size:11px;color:#666">Total Present</div>
+        </div>
+        <div style="background:#fde8e8;padding:12px;border-radius:8px;text-align:center">
+          <div style="font-size:24px;font-weight:700;color:#e74c3c">${classAbsentTotal}</div>
+          <div style="font-size:11px;color:#666">Total Absent</div>
+        </div>
+        <div style="background:#fff8e1;padding:12px;border-radius:8px;text-align:center">
+          <div style="font-size:24px;font-weight:700;color:#f39c12">${classLateTotal}</div>
+          <div style="font-size:11px;color:#666">Total Late</div>
+        </div>
+        <div style="background:#ecf0f1;padding:12px;border-radius:8px;text-align:center">
+          <div style="font-size:24px;font-weight:700;color:#95a5a6">${classHolidayTotal}</div>
+          <div style="font-size:11px;color:#666">Holidays</div>
+        </div>
+        <div style="background:#e3f0ff;padding:12px;border-radius:8px;text-align:center">
+          <div style="font-size:24px;font-weight:700;color:#3498db">${attendanceRate}%</div>
+          <div style="font-size:11px;color:#666">Attendance Rate</div>
+        </div>
+      </div>
+      <div class="card-title" style="border:none;margin-top:20px;margin-bottom:10px">Student Breakdown</div>
+      <div class="tbl-wrap">
+        <table style="font-size:12px">
+          <thead><tr><th>Adm No</th><th>Name</th><th>Present</th><th>Absent</th><th>Late</th><th>Holiday</th></tr></thead>
+          <tbody>
+            ${analytics.map(a => `<tr><td><code>${a.adm}</code></td><td>${a.name}</td><td style="text-align:center;color:#27ae60;font-weight:700">${a.present}</td><td style="text-align:center;color:#e74c3c;font-weight:700">${a.absent}</td><td style="text-align:center;color:#f39c12;font-weight:700">${a.late}</td><td style="text-align:center;color:#95a5a6;font-weight:700">${a.holiday}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('attendance-analytics').innerHTML = html;
+  document.getElementById('attendance-analytics').style.display = 'block';
+}
+
+function showAddWeekModal(){
+  const term = document.getElementById('att-term').value;
+  const session = document.getElementById('att-session').value.trim();
+  if(!term || !session){showPopup('Select term and session first', 'warning');return}
+  
+  const weekName = prompt('Enter week name (e.g. Week 11):');
+  if(!weekName) return;
+  
+  const weeks = DB.get('att_weeks_'+term+'_'+session, []);
+  if(!weeks.includes(weekName)){
+    weeks.push(weekName);
+    DB.set('att_weeks_'+term+'_'+session, weeks);
+    showPopup(`✅ ${weekName} added!`, 'success');
+    buildWeekSelector();
+  } else {
+    showPopup('Week already exists', 'warning');
+  }
+}
+
+function exportAttendancePDF(){
+  if(typeof window.jspdf==='undefined'){showPopup('PDF library not loaded', 'error');return}
+  
+  const week = document.getElementById('att-week').value;
+  const term = document.getElementById('att-term').value;
+  const session = document.getElementById('att-session').value.trim();
+  const cls = document.getElementById('att-class').value;
+  
+  if(!week){showPopup('Select a week first', 'warning');return}
+  
+  students = getStudents();
+  let filtered = cls ? students.filter(s => s.class === cls) : students;
+  
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  const dayLongs = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+  
+  doc.setFontSize(14);
+  doc.text(`${week} Attendance Report`, 14, 14);
+  doc.setFontSize(10);
+  doc.text(`${cls || 'All Classes'} • ${term} • ${session}`, 14, 20);
+  
+  const rows = filtered.map(s => {
+    const studentKey = 'student_' + s.id;
+    const studentAtt = currentWeekData[studentKey] || {};
+    const row = [s.adm, s.name];
+    dayLongs.forEach(d => {
+      const status = studentAtt[d] || '—';
+      row.push(status.charAt(0).toUpperCase() + status.slice(1));
+    });
+    return row;
+  });
+  
+  doc.autoTable({
+    startY: 25,
+    head: [['Adm No', 'Name', ...days]],
+    body: rows,
+    styles: {fontSize: 9},
+    headStyles: {fillColor: [10, 102, 64]},
+    theme: 'grid',
+    margin: {left: 14, right: 14}
+  });
+  
+  doc.save(`attendance_${week}_${cls||'all'}.pdf`);
+  showPopup('Attendance PDF exported', 'success');
+}
+
+function getAttendanceAggregate(studentId, term, session){
+  const weeks = DB.get('att_weeks_'+term+'_'+session, []);
+  let totalDays = 0, presentEntries = 0, lateEntries = 0;
+  const dayLongs = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+  
+  weeks.forEach(week => {
+    const weekKey = 'att_week_'+term+'_'+session+'_'+week;
+    const weekData = DB.get(weekKey, {});
+    const studentKey = 'student_'+studentId;
+    const studentAtt = weekData[studentKey] || {};
+    
+    dayLongs.forEach(d => {
+      const status = studentAtt[d];
+      if(status === 'present') presentEntries++;
+      if(status === 'late') lateEntries++;
+      if(status && status !== 'holiday') totalDays++;
+    });
+  });
+  
+  return {totalDays, presentEntries, lateEntries};
+}
+
+// ══════════════════════════════════════════════════════════
+// RESULT EXPORT MODULE
+// ══════════════════════════════════════════════════════════
+let exportResultsCache = [];
+
+function populateExportClass(){
+  students = getStudents();
+  const cls = [...new Set(students.map(s => s.class))].filter(Boolean).sort();
+  document.getElementById('exp-class').innerHTML = '<option value="">All Classes</option>' + cls.map(c => `<option>${c}</option>`).join('');
+}
+
+function queryResults(){
+  const cls = document.getElementById('exp-class').value;
+  const term = document.getElementById('exp-term').value;
+  const type = document.getElementById('exp-type').value;
+  const session = document.getElementById('exp-session').value.trim();
+  
+  results = getResults();
+  let filtered = results.filter(r =>
+    (!cls || r.class === cls) &&
+    (!term || r.term === term) &&
+    (!session || r.session === session)
+  );
+  
+  exportResultsCache = filtered;
+  
+  const html = `
+    <div class="card">
+      <div class="card-title">Found ${filtered.length} Result(s)</div>
+      <div class="tbl-wrap">
+        <table style="font-size:12px">
+          <thead><tr><th><input type="checkbox" id="select-all-results" onchange="toggleSelectAllResults(this.checked)"/></th><th>Adm No</th><th>Name</th><th>Class</th><th>Term</th><th>Avg</th><th>Grade</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${filtered.map((r, idx) => `
+            <tr>
+              <td><input type="checkbox" class="result-checkbox" value="${idx}"/></td>
+              <td><code>${r.studentAdm}</code></td>
+              <td>${r.studentName}</td>
+              <td>${r.class}</td>
+              <td>${r.term}</td>
+              <td style="font-weight:700">${r.avg}%</td>
+              <td><span class="badge badge-${r.grade}">${r.grade}</span></td>
+              <td><button class="btn btn-outline btn-sm" onclick="buildPDF(exportResultsCache[${idx}])">📄 PDF</button></td>
+            </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('export-results-area').innerHTML = html;
+}
+
+function toggleSelectAllResults(checked){
+  document.querySelectorAll('.result-checkbox').forEach(cb => cb.checked = checked);
+}
+
+function exportSelectedResultsPDF(mode){
+  const selected = [];
+  if(mode === 'all'){
+    selected.push(...exportResultsCache);
+  } else {
+    document.querySelectorAll('.result-checkbox:checked').forEach(cb => {
+      const idx = parseInt(cb.value);
+      selected.push(exportResultsCache[idx]);
+    });
+  }
+  
+  if(!selected.length){showPopup('Select results to export', 'warning');return}
+  
+  let count = 0;
+  const exportNext = () => {
+    if(count < selected.length){
+      buildPDF(selected[count]);
+      count++;
+      setTimeout(exportNext, 500);
+    }
+  };
+  exportNext();
+}
+
 
 // ══════════════════════════════════════════════════════════
 // MID-TERM RESULTS

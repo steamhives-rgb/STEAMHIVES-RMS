@@ -1,0 +1,2395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>STEAMhives RMS - Developer Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{--primary:#0a6640;--primary-mid:#0e8a54;--secondary:#f04c15;--secondary-light:#ff6b35;--tertiary:#004e89;--border:#dde3ea;--surface:#f5f7fa;--white:#ffffff;--navy:#1a1a1a;--muted:#6c7a89;--danger:#c0392b;--radius:14px;--shadow:0 16px 48px rgba(0,0,0,0.12);--bg-primary:#ffffff;--bg-secondary:#f8fafc;--bg-tertiary:#f1f5f9;--text-primary:#1e293b;--text-secondary:#64748b;--text-muted:#94a3b8;--border-light:#e2e8f0;--bg-primary-dark:#0f172a;--bg-secondary-dark:#1e293b;--bg-tertiary-dark:#334155;--text-primary-dark:#f8fafc;--text-secondary-dark:#cbd5e1;--text-muted-dark:#64748b;--border-light-dark:#334155;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%}
+body{font-family:'Montserrat',sans-serif;background:var(--bg-primary);color:var(--text-primary);transition:background-color 0.3s,color 0.3s}
+body.dark{background:var(--bg-primary-dark);color:var(--text-primary-dark)}
+body.dark *{color:var(--text-primary-dark) !important}
+/* ── Dark Mode Classes ── */
+.dark .card{background:var(--bg-secondary-dark);border-color:var(--border-light-dark)}
+.dark .stat{background:var(--bg-secondary-dark);border-color:var(--border-light-dark)}
+.dark .tbl-wrap{border-color:var(--border-light-dark)}
+.dark table th{background:var(--bg-tertiary-dark);color:var(--text-secondary-dark)}
+.dark table td{border-bottom-color:var(--border-light-dark)}
+.dark table tr:hover td{background:var(--bg-tertiary-dark)}
+.dark .modal{background:var(--bg-secondary-dark)}
+.sidebar{background:var(--secondary)}
+.dark .sidebar{background:var()}
+.dark .topbar{background:var(--bg-secondary-dark);border-bottom-color:var(--border-light-dark)}
+.dark .alert{background:var(--bg-tertiary-dark);color:var(--text-secondary-dark);border-color:var(--border-light-dark)}
+.dark .form-group input,.dark .form-group select{background:var(--bg-secondary-dark);border-color:var(--border-light-dark);color:var(--text-primary-dark)}
+.dark .form-group input:focus,.dark .form-group select:focus{border-color:var(--primary)}
+.dark .btn-outline{border-color:var(--border-light-dark);color:var(--text-secondary-dark)}
+.dark .btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+/* ── Mobile Menu Toggle ── */
+.hamburger{display:none;width:32px;height:32px;flex-direction:column;justify-content:space-between;cursor:pointer;background:none;border:none;padding:0}
+.hamburger span{width:100%;height:3px;background:var(--secondary);border-radius:2px;transition:all 0.3s}
+.hamburger.active span:nth-child(1){transform:rotate(45deg) translate(8px,8px)}
+.hamburger.active span:nth-child(2){opacity:0}
+.hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(7px,-7px)}
+
+/* ── Login Screen ── */
+#login-card-wrapper{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--navy) 0%,var(--primary) 100%);padding:20px}
+.login-form{background:var(--white);border-radius:16px;padding:40px 32px;width:100%;max-width:440px;box-shadow:var(--shadow)}
+.login-form h1{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:8px;color:var(--navy)}
+.login-form>p{color:var(--muted);font-size:13px;margin-bottom:24px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:6px;letter-spacing:0.5px}
+.form-group input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--navy);outline:none;transition:border-color 0.2s}
+.form-group input:focus{border-color:var(--primary)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px;transition:all 0.2s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-mid)}
+.btn-primary:active{transform:scale(0.98)}
+.btn-outline{background:transparent;border:1.5px solid var(--primary);color:var(--primary)}
+.btn-outline:hover{background:rgba(10,102,64,0.05)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#a93226}
+.btn-gold{background:var(--secondary);color:#fff}
+.btn-gold:hover{background:#b8860a}
+.btn-sm{padding:8px 12px;font-size:12px}
+.alert{border-radius:10px;padding:14px 16px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.alert-danger{background:#fde8e8;color:var(--danger);border-left:4px solid var(--danger)}
+.alert-success{background:#e8f5ee;color:#0a6640;border-left:4px solid #0a6640}
+.alert-info{background:#eef6ff;color:#1565c0;border-left:4px solid #1565c0}
+
+/* ── App Layout ── */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--secondary);color:#fff;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto;transition:transform 0.3s ease}
+.sidebar.mobile-hide{transform:translateX(-100%)}
+.sidebar.open{transform:translateX(0)}
+.sidebar-brand{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-brand h1{font-family:'Playfair Display',serif;font-size:16px;color:var(--border);line-height:1.2}
+.sidebar-brand p{font-size:10px;color:rgb(255, 255, 255);margin-top:4px}
+.sidebar-nav{flex:1;padding:16px 0}
+.nav-section{padding:12px 20px 6px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255, 255, 255, 0.881);font-weight:700}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;color:rgba(255,255,255,0.65);font-size:13px;transition:all 0.2s;border-left:3px solid transparent;user-select:none}
+.nav-item:hover{background:rgba(255, 255, 255, 0.244);color:#fff}
+.nav-item.active{background:rgba(255, 253, 248, 0.694);color:var(--secondary);border-left-color:var(--secondary)}
+.sidebar-footer{padding:14px 20px;border-top:1px solid rgba(255, 255, 255, 0.967);font-size:10px;color:rgba(255,255,255,0.25)}
+
+.main{margin-left:260px;flex:1;display:flex;flex-direction:column}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.topbar-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--navy);font-weight:700}
+.content{padding:28px;flex:1;overflow-y:auto}
+.page{display:none}.page.active{display:block}
+
+/* ── Cards & Stats ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.08);margin-bottom:20px}
+.card-title{font-family:'Playfair Display',serif;font-size:16px;color:var(--navy);margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.stat h2{font-size:28px;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px}
+.stat p{font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)}
+
+/* ── Tables ── */
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--surface);color:var(--muted);padding:12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;border-bottom:2px solid var(--border)}
+td{padding:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-available{background:#e8f5ee;color:#0a6640}
+.badge-used{background:#fde8e8;color:#c0392b}
+.badge-active{background:#fff8e1;color:#7a5b00}
+.badge-expired{background:#f0f0f0;color:#5c5c5c}
+
+/* ── Modal ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:14px;width:100%;max-width:500px;padding:28px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.modal h2{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:16px;color:var(--navy)}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .sidebar{width:100%;height:100vh;transform:translateX(-100%);transition:transform 0.3s ease}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .topbar{padding:12px 16px;flex-wrap:wrap}
+  .topbar-title{font-size:16px}
+  .topbar-left{flex-direction:column;align-items:flex-start;gap:8px}
+  .content{padding:16px;overflow-y:auto}
+  .stats{grid-template-columns:1fr 1fr;gap:12px}
+  .stat{padding:16px;margin-bottom:8px}
+  .stat h2{font-size:24px}
+  .card{padding:16px;margin-bottom:16px}
+  .card-title{font-size:14px;margin-bottom:12px}
+  table{font-size:12px}
+  thead{display:none}
+  tbody,tr,td{display:block;width:100%}
+  tr{margin-bottom:15px;border:1px solid var(--border);border-radius:8px;padding:0;background:var(--white)}
+  td{text-align:right;padding:10px;position:relative;padding-left:50%;border:none}
+  td:before{content:attr(data-label);position:absolute;left:6px;font-weight:bold;width:40%;text-align:left;color:var(--muted)}
+  .btn{padding:10px 16px;font-size:12px;width:100%;justify-content:center;margin:4px 0}
+  .btn-row{flex-direction:column;gap:8px}
+  .modal{padding:16px;width:95%;max-width:95%}
+  .modal h2{font-size:16px;margin-bottom:12px}
+  .form-group{margin-bottom:12px}
+  input,select,textarea{width:100%;padding:10px;font-size:14px}
+  .modal-footer{flex-wrap:wrap;gap:6px}
+  .modal-footer button{flex:1;min-width:100px}
+}
+
+@media(max-width:480px){
+  .stats{grid-template-columns:1fr;gap:8px}
+  .stat{padding:12px;margin-bottom:6px}
+  .stat h2{font-size:20px}
+  .login-form{padding:20px 12px;margin:10px}
+  .topbar{padding:10px;flex-direction:column;align-items:flex-start;gap:8px}
+  .topbar-left{width:100%}
+  .btn{padding:10px 12px;font-size:11px}
+  .card-title{font-size:12px}
+  table{font-size:11px}
+  td{padding:8px;font-size:11px}
+  td:before{font-size:10px;width:45%;left:4px}
+  .modal{padding:12px;width:100%}
+  .form-group{margin-bottom:10px}
+  input,select,textarea{font-size:16px;padding:10px}
+  .hamburger{width:28px;height:28px}
+  .hamburger span{height:2.5px}
+  .nav-item{padding:10px 16px;font-size:12px}
+  .sidebar-brand{padding:16px}
+  .sidebar-brand h1{font-size:14px}
+  .badge{padding:3px 8px;font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-card-wrapper" class="layout" style="justify-content:center;align-items:center;background:linear-gradient(135deg,var(--navy) 0%,var(--primary) 100%)">
+  <div class="login-form" id="login-form">
+    <h1>🔐 Developer Admin</h1>
+    <p>Restricted access - System administrators only</p>
+    <div id="login-alert"></div>
+    <div class="form-group">
+      <label>Developer Key</label>
+      <input type="password" id="dev-key" placeholder="Enter secure developer key" onkeydown="if(event.key==='Enter')doDeveloperLogin()"/>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doDeveloperLogin()">Authenticate</button>
+    <p style="margin-top:16px;color:var(--muted);font-size:12px">⚠️ This area is restricted to developers only. All access attempts are logged.</p>
+  </div>
+</div>
+
+<!-- APP LAYOUT -->
+<div id="app-layout" style="display:none" class="layout">
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h1>STEAMhives RMS</h1>
+      <p>Developer Portal v2.0</p>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <div class="nav-item active" onclick="showPage('dashboard',this)">📊 Dashboard</div>
+      <div class="nav-item" onclick="showPage('schools',this)">🏫 Schools</div>
+      <div class="nav-item" onclick="showPage('results',this)">📝 All Results</div>
+      
+      <div class="nav-section">Management</div>
+      <div class="nav-item" onclick="showPage('coupons',this)">🎫 Coupons</div>
+      <div class="nav-item" onclick="showPage('printresults',this)">🖨️ Print Results</div>
+      <div class="nav-item" onclick="showPage('schoolsettings',this)">⚙️ School Settings</div>
+      <div class="nav-item" onclick="showPage('admins',this)">👤 Admin Control</div>
+      <div class="nav-item" onclick="showPage('logs',this)">📋 Audit Logs</div>
+      
+      <div class="nav-section">Tools</div>
+      <div class="nav-item" onclick="exportAllData()">⬇️ Export All Data</div>
+      <div class="nav-item" onclick="logout()">🚪 Logout</div>
+    </div>
+    <div class="sidebar-footer">STEAMhives RMS v2.0 © 2025</div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="topbar-title" id="page-title">Dashboard</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button class="btn btn-outline btn-sm" id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+        <span id="user-badge" style="font-size:12px;color:var(--muted)">Developer</span>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page active">
+        <div class="stats">
+          <div class="stat">
+            <h2 id="total-schools">0</h2>
+            <p>Total Schools</p>
+          </div>
+          <div class="stat">
+            <h2 id="total-results">0</h2>
+            <p>Total Results</p>
+          </div>
+          <div class="stat">
+            <h2 id="total-students">0</h2>
+            <p>Students</p>
+          </div>
+          <div class="stat">
+            <h2 id="total-coupons">0</h2>
+            <p>Coupons Generated</p>
+          </div>
+          <div class="stat">
+            <h2 id="coupons-used">0</h2>
+            <p>Coupons Used</p>
+          </div>
+          <div class="stat">
+            <h2 id="coupons-active">0</h2>
+            <p>Active Coupons</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recent Activity</div>
+          <div id="recent-activity" style="color:var(--muted);font-size:13px;padding:16px;text-align:center">No recent activity</div>
+        </div>
+      </div>
+
+      <!-- SCHOOLS -->
+      <div id="page-schools" class="page">        <div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-danger" onclick="deleteAllSchools()">🗑️ Delete All Schools</button>
+          <button class="btn btn-primary" onclick="exportAllData()">⬇️ Export All Data</button>
+        </div>        <div class="card">
+          <div class="card-title">All Schools</div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>School ID</th><th>School Name</th><th>Students</th><th>Results</th><th>Coupons Used</th><th>Action</th></tr></thead>
+            <tbody id="schools-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALL RESULTS -->
+      <div id="page-results" class="page">
+        <div style="margin-bottom:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <button class="btn btn-primary btn-sm" onclick="openCreateResultModal()">➕ Add New Result</button>
+          <button class="btn btn-gold btn-sm" onclick="previewPrintResults()">📄 Preview Filtered Results</button>
+          <input type="text" id="search-results" placeholder="Search by school, student, subject..." style="flex:1;min-width:220px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px" oninput="filterResults()"/>
+        </div>
+        <div class="card">
+          <div class="card-title">All Results</div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>School</th><th>Student</th><th>Subjects</th><th>Total</th><th>Average</th><th>Grade</th><th>Type</th><th>Modified</th><th>Action</th></tr></thead>
+            <tbody id="results-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- COUPONS -->
+      <div id="page-coupons" class="page">
+        <div class="card">
+          <div class="card-title">Generate New Coupons</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+            <div class="form-group">
+              <label>Student Coupon Category</label>
+              <select id="coupon-type">
+                <option value="100">100 Students</option>
+                <option value="200">200 Students</option>
+                <option value="unlimited">Unlimited Students</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Quantity</label>
+              <input type="number" id="coupon-qty" value="1" min="1" max="100"/>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="generateCoupons()">Generate Coupons</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Coupon Statistics</div>
+          <div class="stats">
+            <div class="stat">
+              <h2 id="stat-total-coupons">0</h2>
+              <p>Total Generated</p>
+            </div>
+            <div class="stat">
+              <h2 id="stat-used-coupons">0</h2>
+              <p>Used</p>
+            </div>
+            <div class="stat">
+              <h2 id="stat-available-coupons">0</h2>
+              <p>Available</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">All Coupons</div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Used By</th><th>School</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="coupons-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRINT RESULTS -->
+      <div id="page-printresults" class="page">
+        <div class="card">
+          <div class="card-title">Print Results by School & Class</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-bottom:20px">
+            <div class="form-group">
+              <label>Select School</label>
+              <select id="print-school" onchange="loadClassesForPrint()">
+                <option value="">All Schools</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Select Class</label>
+              <select id="print-class">
+                <option value="">All Classes</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Term</label>
+              <select id="print-term">
+                <option value="">All Terms</option>
+                <option value="1st Term">1st Term</option>
+                <option value="2nd Term">2nd Term</option>
+                <option value="3rd Term">3rd Term</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Session</label>
+              <input type="text" id="print-session" placeholder="e.g. 2025/2026"/>
+            </div>
+          </div>
+          <div style="margin-bottom:16px">
+            <label style="display:flex;align-items:center;gap:8px">
+              <input type="checkbox" id="print-include-logo" checked/>
+              Include School Logo
+            </label>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" onclick="previewPrintResults()">👁️ Preview Results</button>
+            <button class="btn btn-gold" onclick="printResultsPDF()">🖨️ Export Filtered Results</button>
+          </div>
+          <div id="print-preview" style="margin-top:20px;display:none">
+            <div class="card-title">Preview</div>
+            <div id="preview-content"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN MANAGEMENT -->
+      <div id="page-admins" class="page">
+        <div class="card">
+          <div class="card-title">School Admin Management</div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>School</th><th>Admin Status</th><th>Subscription</th><th>Created</th><th>Actions</th></tr></thead>
+            <tbody id="admins-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCHOOL SETTINGS -->
+      <div id="page-schoolsettings" class="page">
+        <div class="card">
+          <div class="card-title">School Stamps & Signatures Management</div>
+          <div style="margin-bottom:20px">
+            <label style="display:block;margin-bottom:8px;font-weight:600">Select School:</label>
+            <select id="settings-school" onchange="loadSchoolSettings()" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">
+              <option value="">Choose a school...</option>
+            </select>
+          </div>
+
+          <div id="school-settings-content" style="display:none">
+            <!-- School Stamp -->
+            <div class="card" style="margin-top:20px">
+              <div class="card-title">School Stamp/Logo</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div>
+                  <label style="display:block;margin-bottom:8px;font-weight:600">Upload School Stamp</label>
+                  <input type="file" id="school-stamp-upload" accept="image/*" style="padding:10px;border:1.5px solid var(--border);border-radius:8px;width:100%"/>
+                  <small style="color:var(--muted);display:block;margin-top:4px">JPG, PNG (Max 5MB)</small>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:8px;font-weight:600">Preview</label>
+                  <div id="school-stamp-preview" style="width:100%;height:120px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--surface);text-align:center;color:var(--muted);font-size:12px">No image uploaded</div>
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="uploadSchoolStamp()" style="margin-top:12px;width:100%;justify-content:center">📤 Save School Stamp</button>
+            </div>
+
+            <!-- Principal Signature -->
+            <div class="card" style="margin-top:20px">
+              <div class="card-title">Principal Signature (Default)</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div>
+                  <label style="display:block;margin-bottom:8px;font-weight:600">Upload Principal Signature</label>
+                  <input type="file" id="principal-sig-upload" accept="image/*" style="padding:10px;border:1.5px solid var(--border);border-radius:8px;width:100%"/>
+                  <small style="color:var(--muted);display:block;margin-top:4px">JPG, PNG (Max 5MB)</small>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:8px;font-weight:600">Preview</label>
+                  <div id="principal-sig-preview" style="width:100%;height:120px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--surface);text-align:center;color:var(--muted);font-size:12px">No image uploaded</div>
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="uploadPrincipalSignature()" style="margin-top:12px;width:100%;justify-content:center">📤 Save Principal Signature</button>
+            </div>
+
+            <div class="card" style="margin-top:20px">
+              <div class="card-title">PDF Theme Colors</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;align-items:end">
+                <div>
+                  <label style="display:block;margin-bottom:8px;font-weight:600">Primary Color</label>
+                  <input type="color" id="school-color-primary" style="width:100%;height:44px;border:none;border-radius:8px;cursor:pointer"/>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:8px;font-weight:600">Secondary Color</label>
+                  <input type="color" id="school-color-secondary" style="width:100%;height:44px;border:none;border-radius:8px;cursor:pointer"/>
+                </div>
+                <div>
+                  <label style="display:block;margin-bottom:8px;font-weight:600">Affective Panel Color</label>
+                  <input type="color" id="school-color-affective" style="width:100%;height:44px;border:none;border-radius:8px;cursor:pointer"/>
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="saveSchoolThemeColors()" style="margin-top:12px;width:100%;justify-content:center">💾 Save PDF Theme Colors</button>
+            </div>
+
+            <!-- Class-Specific Signatures -->
+            <div class="card" style="margin-top:20px">
+              <div class="card-title">Class-Specific Principal Signatures</div>
+              <div style="margin-bottom:16px">
+                <label style="display:block;margin-bottom:8px;font-weight:600">Select Class for Custom Signature:</label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <input type="text" id="class-name-input" placeholder="e.g., JSS1, SS2, Primary 5..." style="padding:10px;border:1.5px solid var(--border);border-radius:8px"/>
+                  <button class="btn btn-outline" onclick="addClassSignatureField()" style="justify-content:center">➕ Add Class</button>
+                </div>
+              </div>
+
+              <div id="class-signatures-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px">
+                <!-- Class signature cards will be inserted here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUDIT LOGS -->
+      <div id="page-logs" class="page">
+        <div class="card">
+          <div class="card-title">Modification Logs</div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Timestamp</th><th>School</th><th>Action</th><th>Details</th></tr></thead>
+            <tbody id="logs-tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:900px">
+    <h2>Edit Result - <span id="edit-student-name"></span></h2>
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Result Type</label>
+      <select id="modal-result-type" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px" onchange="updateResultTypeUI()">
+        <option value="term">Term Result (CA + Exam)</option>
+        <option value="ca">CA Result (CA only - 40 marks)</option>
+      </select>
+    </div>
+    <div style="background:var(--surface);padding:16px;border-radius:8px;margin-bottom:16px">
+      <p style="margin:0"><strong>Subjects:</strong></p>
+      <div id="modal-subjects-list" style="margin-top:8px"></div>
+    </div>
+    <div style="background:var(--surface);padding:16px;border-radius:8px;margin-bottom:16px">
+      <p style="margin:0 0 12px 0"><strong>Affective Domain (Select One - 1 to 5):</strong></p>
+      <div id="modal-affective-grid" style="font-size:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px"></div>
+    </div>
+    <div style="background:var(--surface);padding:16px;border-radius:8px;margin-bottom:16px">
+      <p style="margin:0 0 12px 0"><strong>Locomotor/Psychomotor Domain (Select One - 1 to 5):</strong></p>
+      <div id="modal-locomotor-grid" style="font-size:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px"></div>
+    </div>
+    <div class="form-group">
+      <label>Teacher Comment</label>
+      <textarea id="modal-teacher-comment" style="min-height:60px"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Principal Comment</label>
+      <textarea id="modal-principal-comment" style="min-height:60px"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Teacher Signature</label>
+      <input type="text" id="modal-sig-teacher" readonly placeholder="Signature status" style="background:var(--surface)"/>
+    </div>
+    <div class="form-group">
+      <label>Principal Signature</label>
+      <input type="text" id="modal-sig-principal" readonly placeholder="Signature status" style="background:var(--surface)"/>
+    </div>
+    <div class="form-group">
+      <label>School Stamp</label>
+      <input type="text" id="modal-school-stamp" readonly placeholder="Stamp status" style="background:var(--surface)"/>
+    </div>
+    <div class="form-group">
+      <label>Student Passport</label>
+      <input type="text" id="modal-passport" readonly placeholder="Passport status" style="background:var(--surface)"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="downloadResultJSON()">⬇️ Download JSON</button>
+      <button class="btn btn-outline" onclick="downloadStudentPDF()">📄 Download PDF</button>
+      <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditedResult()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="create-modal">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;max-width:900px">
+    <h2>Create New Result</h2>
+    <div class="form-group">
+      <label>School</label>
+      <select id="create-school-select" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px" onchange="loadCreateStudents()"></select>
+    </div>
+    <div class="form-group">
+      <label>Student</label>
+      <select id="create-student-select" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px" onchange="loadCreateSubjectsFromStudent()"></select>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:16px">
+      <div class="form-group">
+        <label>Result Type</label>
+        <select id="create-result-type" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px" onchange="updateCreateResultTypeUI()">
+          <option value="term">Term Result (CA + Exam)</option>
+          <option value="ca">CA Result (CA only - 40 marks)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Term</label>
+        <select id="create-term" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px">
+          <option value="1st Term">1st Term</option>
+          <option value="2nd Term">2nd Term</option>
+          <option value="3rd Term">3rd Term</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Session</label>
+        <input type="text" id="create-session" placeholder="e.g. 2025/2026" style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px" />
+      </div>
+    </div>
+
+    <div class="card" style="background:var(--surface);padding:16px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:12px">
+        <div style="font-weight:700">Subject Scores</div>
+        <button class="btn btn-outline btn-sm" onclick="addCreateSubjectRow()">➕ Add Subject</button>
+      </div>
+      <div id="create-subjects-list"></div>
+    </div>
+
+    <div style="background:var(--surface);padding:16px;border-radius:8px;margin-bottom:16px">
+      <p style="margin:0 0 12px 0"><strong>Affective Domain (1 to 5):</strong></p>
+      <div id="create-affective-grid" style="font-size:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px"></div>
+    </div>
+    <div style="background:var(--surface);padding:16px;border-radius:8px;margin-bottom:16px">
+      <p style="margin:0 0 12px 0"><strong>Locomotor/Psychomotor Domain (1 to 5):</strong></p>
+      <div id="create-locomotor-grid" style="font-size:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px"></div>
+    </div>
+    <div class="form-group">
+      <label>Teacher Comment</label>
+      <textarea id="create-teacher-comment" style="min-height:60px"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Principal Comment</label>
+      <textarea id="create-principal-comment" style="min-height:60px"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeCreateModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNewResult()">Create Result</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay-close" id="modal-overlay-close" style="display:none" onclick="closeEditModal(); closeCreateModal()"></div>
+
+<!-- BEAUTIFUL POPUP MODAL -->
+<div class="modal-overlay" id="popup-modal" style="z-index:300">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div id="popup-icon" style="font-size:48px;margin-bottom:16px">✅</div>
+    <h2 id="popup-title" style="margin-bottom:12px">Success!</h2>
+    <p id="popup-message" style="color:var(--muted);margin-bottom:20px">Operation completed successfully</p>
+    <button class="btn btn-primary" onclick="closePopup()" style="width:100%">OK</button>
+  </div>
+</div>
+
+<script>
+const DB={get:(key,def=[])=>{try{return JSON.parse(localStorage.getItem(key))??def}catch{return def}},set:(key,val)=>localStorage.setItem(key,JSON.stringify(val))};
+const SCHOOLS_KEY='sh_schools_registry';const SESSION_KEY='sh_dev_session';const DEVELOPER_KEY='DEVKEY_BABS_2024_ADMIN';const RESULTS_LOG='sh_results_modification_log';
+let currentSession=null,currentEditResult=null;
+
+const PDF_THEME_DEFAULTS = {
+  primaryColor:'#f97316',
+  secondaryColor:'#1e3a5f',
+  affectivePanelColor:'#f1f5f9'
+};
+
+const GRADE_SCALE = [
+  { min: 75, grade: 'A', remark: 'Excellent' },
+  { min: 65, grade: 'B', remark: 'Very Good' },
+  { min: 55, grade: 'C', remark: 'Good' },
+  { min: 45, grade: 'D', remark: 'Pass' },
+  { min: 40, grade: 'E', remark: 'Fair' },
+  { min: 0,  grade: 'F', remark: 'Fail' }
+];
+
+const CLASS_GROUPS = {
+  'Pre-Basics': ['Creche'],
+  'Kindergarten': ['Kindergarten', 'Kindergarten 1', 'Kindergarten 2'],
+  'Nursery': ['Nursery', 'Nursery 1', 'Nursery 2'],
+  'Primary': ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5'],
+  'Basic': ['Basic 1', 'Basic 2', 'Basic 3', 'Basic 4', 'Basic 5', 'Basic 6', 'Basic 7', 'Basic 8', 'Basic 9'],
+  'Junior Secondary': ['JSS 1', 'JSS 2', 'JSS 3'],
+  'Senior Secondary': ['SS 1', 'SS 2', 'SS 3']
+};
+
+const SUBJECT_CATEGORIES = {
+  'Pre-Basics': ['Language & Literacy', 'Numeracy', 'Creative Arts'],
+  'Kindergarten': ['Phonics', 'Numbers', 'Creative Arts'],
+  'Nursery': ['Phonics', 'Numbers', 'Creative Arts'],
+  'Primary': ['Mathematics', 'English Language', 'Basic Science'],
+  'Basic': ['Mathematics', 'English Language', 'Basic Science & Technology'],
+  'Junior Secondary': ['Mathematics', 'English Language', 'Basic Science'],
+  'Senior Secondary': ['Mathematics', 'English Language', 'Physics']
+};
+
+const AFFECTIVE_TRAITS = [
+  'Punctuality', 'Attentiveness', 'Honesty', 'Cooperation',
+  'Neatness', 'Respect', 'Self-Control'
+];
+
+const LOCOMOTOR_TRAITS = [
+  'Handwriting', 'Sports', 'Practical Work',
+  'Arts & Crafts', 'Drawing'
+];
+
+// Utility Functions
+function schoolKey(id,type){return `sh_${id}_${type}`}
+function getSchools(){return DB.get(SCHOOLS_KEY,[])}
+function saveSchools(arr){DB.set(SCHOOLS_KEY,arr)}
+function getCoupons(){return DB.get('sh_coupons',[])}
+function saveCoupons(arr){DB.set('sh_coupons',arr)}
+function getResultsBySchool(id){return DB.get(schoolKey(id,'results'),[])}
+function saveResultsBySchool(id,arr){DB.set(schoolKey(id,'results'),arr)}
+function getStudentsBySchool(id){return DB.get(schoolKey(id,'students'),[])}
+function getLogs(){return DB.get(RESULTS_LOG,[])}
+function saveLogs(arr){DB.set(RESULTS_LOG,arr)}
+
+// Authentication
+function doDeveloperLogin(){
+  const key=document.getElementById('dev-key').value.trim();
+  const alert=document.getElementById('login-alert');
+  alert.innerHTML='';
+  if(key!==DEVELOPER_KEY){
+    alert.innerHTML='<div class="alert alert-danger">❌ Invalid developer key</div>';
+    return;
+  }
+  currentSession={token:Math.random().toString(36),timestamp:new Date().toISOString()};
+  DB.set(SESSION_KEY,currentSession);
+  document.getElementById('login-card-wrapper').style.display='none';
+  document.getElementById('app-layout').style.display='flex';
+  loadDashboard();
+}
+
+function logout(){
+  if(confirm('Logout?')){
+    DB.set(SESSION_KEY,null);
+    currentSession=null;
+    document.getElementById('app-layout').style.display='none';
+    document.getElementById('login-card-wrapper').style.display='flex';
+    document.getElementById('dev-key').value='';
+  }
+}
+
+// UI Functions
+function showPage(page,element){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(element) element.classList.add('active');
+  const titles={'dashboard':'Dashboard','schools':'Schools','results':'All Results','coupons':'Coupon Management','printresults':'Print Results','schoolsettings':'School Settings','admins':'Admin Management','logs':'Audit Logs'};
+  document.getElementById('page-title').textContent=titles[page]||'Page';
+  if(page==='schools') loadSchools();
+  else if(page==='results') loadResults();
+  else if(page==='coupons') loadCoupons();
+  else if(page==='printresults') loadPrintResultsPage();
+  else if(page==='schoolsettings') loadSchoolSettingsPage();
+  else if(page==='admins') loadAdminManagement();
+  else if(page==='logs') loadLogs();
+  if(window.innerWidth<=768) closeSidebar();
+}
+
+function toggleSidebar(){
+  const sidebar=document.getElementById('sidebar');
+  const hamburger=document.getElementById('hamburger');
+  sidebar.classList.toggle('open');
+  hamburger.classList.toggle('active');
+}
+
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('active');
+}
+
+function toggleTheme(){
+  const body=document.body;
+  const toggleBtn=document.getElementById('theme-toggle');
+  body.classList.toggle('dark');
+  const isDark=body.classList.contains('dark');
+  toggleBtn.textContent=isDark?'☀️':'🌙';
+  toggleBtn.title=isDark?'Switch to Light Mode':'Switch to Dark Mode';
+  localStorage.setItem('admin-theme',isDark?'dark':'light');
+}
+
+// Dashboard
+function loadDashboard(){
+  const schools=getSchools();
+  let totalResults=0,totalStudents=0;
+  schools.forEach(s=>{
+    totalResults+=getResultsBySchool(s.id).length;
+    totalStudents+=getStudentsBySchool(s.id).length;
+  });
+  const coupons=getCoupons();
+  const used=coupons.filter(c=>c.used).length;
+  document.getElementById('total-schools').textContent=schools.length;
+  document.getElementById('total-results').textContent=totalResults;
+  document.getElementById('total-students').textContent=totalStudents;
+  document.getElementById('total-coupons').textContent=coupons.length;
+  document.getElementById('coupons-used').textContent=used;
+  document.getElementById('coupons-active').textContent=coupons.length-used;
+  
+  // Initialize theme
+  const savedTheme=localStorage.getItem('admin-theme')||'light';
+  document.body.classList.toggle('dark',savedTheme==='dark');
+  const toggleBtn=document.getElementById('theme-toggle');
+  if(toggleBtn){
+    toggleBtn.textContent=savedTheme==='dark'?'☀️':'🌙';
+    toggleBtn.title=savedTheme==='dark'?'Switch to Light Mode':'Switch to Dark Mode';
+  }
+}
+
+// Schools Management
+function loadSchools(){
+  const schools=getSchools();
+  const rows=schools.map(s=>{
+    const results=getResultsBySchool(s.id);
+    const students=getStudentsBySchool(s.id);
+    const coupons=getCoupons().filter(c=>c.usedBy===s.id);
+    return `<tr>
+      <td><strong>${s.uid||s.id.slice(0,4)}</strong></td>
+      <td>${s.name}</td>
+      <td>${students.length}</td>
+      <td>${results.length}</td>
+      <td>${coupons.filter(c=>c.used).length}/${coupons.length}</td>
+      <td>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="viewSchoolDetails('${s.id}')">👁️ View</button>
+          <button class="btn btn-outline btn-sm" onclick="editSchool('${s.id}')">✏️ Edit</button>
+          <button class="btn btn-outline btn-sm" onclick="resetSchoolPassword('${s.id}')">🔑 Reset</button>
+          <button class="btn btn-outline btn-sm" onclick="revokeSchoolLicense('${s.id}')">🚫 Revoke</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSchool('${s.id}')">🗑️ Delete</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('schools-tbody').innerHTML=rows||'<tr><td colspan="6" style="text-align:center;color:var(--muted)">No schools</td></tr>';
+}
+
+function viewSchoolDetails(schoolId){
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  if(!school) return;
+  const results=getResultsBySchool(schoolId);
+  const students=getStudentsBySchool(schoolId);
+  showPopup(`${school.name}\nStudents: ${students.length}\nResults: ${results.length}\nCoupon Used: ${getCoupons().filter(c=>c.usedBy===schoolId).length}`, 'info');
+}
+
+function editSchool(schoolId){
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  if(!school) return;
+  const newName=prompt('Edit school name:',school.name);
+  if(newName&&newName!==school.name){
+    school.name=newName.trim();
+    saveSchools(schools);
+    loadSchools();
+    showPopup('School name updated successfully', 'success');
+  }
+}
+
+function resetSchoolPassword(schoolId){
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  if(!school) return;
+  const newPass=prompt('Enter new password for '+school.name+':');
+  if(newPass){
+    school.passHash=simpleHash(newPass);
+    saveSchools(schools);
+    showPopup('Password reset successfully for '+school.name, 'success');
+  }
+}
+
+function revokeSchoolLicense(schoolId){
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  if(!school) return;
+  if(confirm('Revoke license for '+school.name+'? They will lose access.')){
+    school.subscriptionType='revoked';
+    saveSchools(schools);
+    loadSchools();
+    showPopup('License revoked for '+school.name, 'warning');
+  }
+}
+
+function deleteSchool(schoolId){
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  if(!school) return;
+  if(confirm('DELETE SCHOOL: '+school.name+'?\n\nThis will permanently delete ALL data for this school including students, results, and settings. This action cannot be undone!')){
+    // Remove school from registry
+    const updatedSchools=schools.filter(s=>s.id!==schoolId);
+    saveSchools(updatedSchools);
+    
+    // Clear all school data
+    localStorage.removeItem(`sh_${schoolId}_students`);
+    localStorage.removeItem(`sh_${schoolId}_results`);
+    localStorage.removeItem(`sh_${schoolId}_settings`);
+    
+    // Remove coupons used by this school
+    const coupons=getCoupons().filter(c=>c.usedBy!==schoolId);
+    saveCoupons(coupons);
+    
+    loadSchools();
+    loadDashboard();
+    showPopup('School '+school.name+' has been permanently deleted', 'warning');
+  }
+}
+
+function deleteAllSchools(){
+  if(confirm('DELETE ALL SCHOOLS?\n\nThis will permanently delete ALL schools and ALL their data. This action cannot be undone!')){
+    saveSchools([]);
+    saveCoupons([]);
+    // Clear all localStorage keys starting with sh_
+    Object.keys(localStorage).forEach(key=>{
+      if(key.startsWith('sh_')) localStorage.removeItem(key);
+    });
+    loadSchools();
+    loadDashboard();
+    showPopup('All schools have been permanently deleted', 'warning');
+  }
+}
+
+// Results Management
+function loadResults(){
+  const schools=getSchools();
+  let allResults=[];
+  schools.forEach(s=>{
+    const results=getResultsBySchool(s.id);
+    const students=getStudentsBySchool(s.id);
+    results.forEach(r=>{
+      const st=students.find(x=>x.id===r.studentId);
+      allResults.push({...r,schoolName:s.name,studentName:st?st.name:'Unknown',schoolId:s.id});
+    });
+  });
+  filterResults();
+}
+
+function filterResults(){
+  const schools=getSchools();
+  let allResults=[];
+  schools.forEach(s=>{
+    const results=getResultsBySchool(s.id);
+    const students=getStudentsBySchool(s.id);
+    results.forEach(r=>{
+      const st=students.find(x=>x.id===r.studentId);
+      // Create a row for each result (not each subject)
+      allResults.push({...r,schoolName:s.name,studentName:st?st.name:'Unknown',schoolId:s.id,displaySubjects:r.subjects.map(s=>s.sub).join(', '),displayGrade:r.grade||'-'});
+    });
+  });
+  const search=document.getElementById('search-results').value.toLowerCase();
+  const filtered=allResults.filter(r=>r.schoolName.toLowerCase().includes(search)||r.studentName.toLowerCase().includes(search)||(r.displaySubjects||'').toLowerCase().includes(search));
+  const rows=filtered.map(r=>`<tr>
+    <td>${r.schoolName}</td>
+    <td>${r.studentName}</td>
+    <td>${r.displaySubjects||'-'}</td>
+    <td>${r.overallTotal!=null?r.overallTotal:'-'}</td>
+    <td>${r.avg!=null?r.avg.toFixed(2):'-'}</td>
+    <td>${r.displayGrade}</td>
+    <td>${r.resultType==='ca'?'CA Result':'Term Result'}</td>
+    <td>${r.modifiedDate?new Date(r.modifiedDate).toLocaleDateString():'-'}</td>
+    <td><button class="btn btn-outline btn-sm" onclick="editResultModal('${r.schoolId}','${r.id}')">Edit</button></td>
+  </tr>`).join('');
+  document.getElementById('results-tbody').innerHTML=rows||'<tr><td colspan="9" style="text-align:center;color:var(--muted)">No results</td></tr>';
+}
+
+function editResultModal(schoolId,resultId){
+  const results=getResultsBySchool(schoolId);
+  const result=results.find(r=>r.id===resultId);
+  if(!result) return;
+  currentEditResult={schoolId,resultId,origAffective:{...(result.affective||{})}};
+  const students=getStudentsBySchool(schoolId);
+  const student=students.find(s=>s.id===result.studentId);
+  document.getElementById('edit-student-name').textContent=student?.name||result.studentName||'Student';
+  
+  // Display subjects with remarks field
+  const subjectsHTML=result.subjects.map((s,i)=>`<div style="background:white;padding:12px;border-radius:6px;margin-bottom:8px">
+    <div style="font-weight:600;margin-bottom:8px">${s.sub}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:12px;margin-bottom:8px">
+      <div><label>CA:</label><input type="number" id="modal-ca-${i}" value="${s.ca||''}" onchange="refreshEditSubjectTotals()" oninput="refreshEditSubjectTotals()" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px"/></div>
+      <div class="modal-exam-field" style="display:${result.resultType==='ca'?'none':'block'}"><label>Exam:</label><input type="number" id="modal-exam-${i}" value="${s.exam||''}" onchange="refreshEditSubjectTotals()" oninput="refreshEditSubjectTotals()" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px"/></div>
+      <div class="modal-total-field"><label class="label-total">${result.resultType==='ca'?'Total (CA):':'Total (CA+Exam):'}</label><input type="text" id="modal-total-${i}" value="${s.total||''}" readonly style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px;background:var(--surface)"/></div>
+      <div><label>Grade:</label><input type="text" id="modal-grade-${i}" value="${s.grade||''}" readonly style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px;background:var(--surface)"/></div>
+    </div>
+    <div style="margin-bottom:8px"><label>Remark:</label><select id="modal-remark-${i}" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px"><option value="">Select Remark</option><option value="Excellent" ${s.remark==='Excellent'?'selected':''}>Excellent</option><option value="Very Good" ${s.remark==='Very Good'?'selected':''}>Very Good</option><option value="Good" ${s.remark==='Good'?'selected':''}>Good</option><option value="Fair" ${s.remark==='Fair'?'selected':''}>Fair</option><option value="Needs Improvement" ${s.remark==='Needs Improvement'?'selected':''}>Needs Improvement</option></select></div>
+  </div>`).join('');
+  document.getElementById('modal-subjects-list').innerHTML=subjectsHTML;
+  document.getElementById('modal-result-type').value=result.resultType||'term';
+  updateResultTypeUI();
+  
+  // Display affective domain as checkboxes
+  const affectiveHTML=AFFECTIVE_TRAITS.map((domain,i)=>{
+    let htmlContent='';
+    for(let j=1;j<=5;j++){
+      const fieldName=normalizeTraitKey(domain);
+      const isChecked=result.affective?.[fieldName]===j;
+      htmlContent+=`<label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="affective-${i}" value="${j}" ${isChecked?'checked':''} style="cursor:pointer"/> <span>${j}</span></label>`;
+    }
+    return `<div style="border:1px solid var(--border);padding:8px;border-radius:4px;background:white"><div style="font-weight:600;margin-bottom:6px;font-size:11px">${domain}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${htmlContent}</div></div>`;
+  }).join('');
+  document.getElementById('modal-affective-grid').innerHTML=affectiveHTML;
+  
+  // Display locomotor domain as checkboxes
+  const locomotorHTML=LOCOMOTOR_TRAITS.map((domain,i)=>{
+    let htmlContent='';
+    for(let j=1;j<=5;j++){
+      const fieldName=normalizeTraitKey(domain);
+      const isChecked=result.locomotor?.[fieldName]===j;
+      htmlContent+=`<label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="locomotor-${i}" value="${j}" ${isChecked?'checked':''} style="cursor:pointer"/> <span>${j}</span></label>`;
+    }
+    return `<div style="border:1px solid var(--border);padding:8px;border-radius:4px;background:white"><div style="font-weight:600;margin-bottom:6px;font-size:11px">${domain}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${htmlContent}</div></div>`;
+  }).join('');
+  document.getElementById('modal-locomotor-grid').innerHTML=locomotorHTML;
+  
+  // Display comments
+  document.getElementById('modal-teacher-comment').value=result.teacherComment||'';
+  document.getElementById('modal-principal-comment').value=result.principalComment||'';
+  
+  // Display signature/passport status
+  document.getElementById('modal-sig-teacher').value=result.sigTeacher?'✅ Uploaded':'-';
+  document.getElementById('modal-sig-principal').value=result.sigPrincipal?'✅ Uploaded':'-';
+  document.getElementById('modal-school-stamp').value=result.schoolStamp?'✅ Uploaded':'-';
+  document.getElementById('modal-passport').value=result.studentPassport?'✅ Uploaded':'-';
+  
+  document.getElementById('edit-modal').classList.add('open');
+  document.getElementById('modal-overlay-close').style.display='block';
+}
+
+function updateResultTypeUI(){
+  const type=document.getElementById('modal-result-type')?.value||'term';
+  document.querySelectorAll('.modal-exam-field').forEach(el=>el.style.display=type==='ca'?'none':'block');
+  document.querySelectorAll('.modal-total-field .label-total').forEach(el=>el.textContent=type==='ca'?'Total (CA):':'Total (CA+Exam):');
+  refreshEditSubjectTotals();
+}
+
+function refreshEditSubjectTotals(){
+  const type=document.getElementById('modal-result-type')?.value||'term';
+  document.querySelectorAll('.modal-exam-field, .modal-total-field').forEach(()=>{});
+  document.querySelectorAll('.modal-exam-field').forEach(()=>{});
+  const subjectRows=document.querySelectorAll('#modal-subjects-list > div');
+  subjectRows.forEach((row,index)=>{
+    const ca=parseInt(document.getElementById(`modal-ca-${index}`)?.value)||0;
+    const examInput=document.getElementById(`modal-exam-${index}`);
+    const exam=type==='ca'?0:(parseInt(examInput?.value)||0);
+    const total=ca+exam;
+    const percent=getResultPercent(total,type);
+    document.getElementById(`modal-total-${index}`).value=total;
+    document.getElementById(`modal-grade-${index}`).value=getGrade(percent);
+  });
+}
+
+function saveEditedResult(){
+  if(!currentEditResult) return;
+  const results=getResultsBySchool(currentEditResult.schoolId);
+  const result=results.find(r=>r.id===currentEditResult.resultId);
+  if(!result) return;
+  
+  // Update subjects
+  const resultType=document.getElementById('modal-result-type')?.value||'term';
+  result.resultType=resultType;
+  result.subjects.forEach((s,i)=>{
+    const ca=parseInt(document.getElementById(`modal-ca-${i}`)?.value)||0;
+    const examInput = document.getElementById(`modal-exam-${i}`);
+    const exam = resultType==='ca' ? 0 : (parseInt(examInput?.value)||0);
+    s.ca=ca;
+    s.exam=exam;
+    s.total=ca + exam;
+    const percent = getResultPercent(s.total, resultType);
+    s.grade=getGrade(percent)||'';
+    s.remark=document.getElementById(`modal-remark-${i}`)?.value||getRemark(percent)||'';
+  });
+  
+  // Save affective domain from checkboxes
+  result.affective=result.affective||{};
+  AFFECTIVE_TRAITS.forEach((domain,i)=>{
+    const selectedRadio=document.querySelector(`input[name="affective-${i}"]:checked`);
+    if(selectedRadio){
+      const fieldName=normalizeTraitKey(domain);
+      result.affective[fieldName]=parseInt(selectedRadio.value);
+    }
+  });
+  
+  // Save locomotor domain from checkboxes
+  result.locomotor=result.locomotor||{};
+  LOCOMOTOR_TRAITS.forEach((domain,i)=>{
+    const selectedRadio=document.querySelector(`input[name="locomotor-${i}"]:checked`);
+    if(selectedRadio){
+      const fieldName=normalizeTraitKey(domain);
+      result.locomotor[fieldName]=parseInt(selectedRadio.value);
+    }
+  });
+  
+  // Recalculate overall totals
+  const totalScore = result.subjects.reduce((sum, s) => sum + (s.total || 0), 0);
+  const avgScore = result.subjects.length > 0 ? result.subjects.reduce((sum, s) => sum + getResultPercent(s.total, resultType), 0) / result.subjects.length : 0;
+  result.overallTotal = totalScore;
+  result.avg = parseFloat(avgScore.toFixed(2));
+  result.grade = getGrade(avgScore);
+  result.remark = getRemark(avgScore);
+  
+  // Update comments
+  result.teacherComment=document.getElementById('modal-teacher-comment').value;
+  result.principalComment=document.getElementById('modal-principal-comment').value;
+  result.modifiedDate=new Date().toISOString();
+  
+  saveResultsBySchool(currentEditResult.schoolId,results);
+  const logs=getLogs();
+  logs.push({timestamp:new Date().toISOString(),schoolId:currentEditResult.schoolId,resultId:currentEditResult.resultId,action:'EDIT',details:'Modified by developer'});
+  saveLogs(logs);
+  closeEditModal();
+  showPopup('Result updated successfully', 'success');
+  filterResults();
+}
+
+function closeEditModal(){
+  document.getElementById('edit-modal').classList.remove('open');
+  document.getElementById('modal-overlay-close').style.display='none';
+  currentEditResult=null;
+}
+
+function downloadStudentPDF(){
+  if(!currentEditResult) return;
+  const results=getResultsBySchool(currentEditResult.schoolId);
+  const result=results.find(r=>r.id===currentEditResult.resultId);
+  if(!result) return;
+  
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===currentEditResult.schoolId);
+  const students=getStudentsBySchool(currentEditResult.schoolId);
+  const student=students.find(s=>s.id===result.studentId);
+  if(!school || !student) return;
+  
+  // Get school settings
+  const settings = DB.get(`sh_${school.id}_settings`, {});
+  
+  // Colors from settings (default to PDF theme defaults)
+  const c1 = hexToRgb(settings.color1 || PDF_THEME_DEFAULTS.primaryColor);
+  const c2 = hexToRgb(settings.color2 || PDF_THEME_DEFAULTS.secondaryColor);
+  const affectivePanelColor = hexToRgb(settings.affectivePanelColor || PDF_THEME_DEFAULTS.affectivePanelColor);
+  
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({orientation: 'portrait', unit: 'mm', format: 'a4'});
+  const W = 210, H = 297, M = 12;
+  
+  let y = 0;
+  
+  // ── HEADER BAND ──
+  doc.setFillColor(...c1);
+  doc.rect(0, 0, W, 34, 'F');
+  
+  // School name center
+  doc.setTextColor(...c2);
+  doc.setFontSize(15);
+  doc.setFont('helvetica', 'bold');
+  doc.text(settings.name || school.name, W/2, 11, {align: 'center'});
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  if(settings.motto) doc.text(`"${settings.motto}"`, W/2, 17, {align: 'center'});
+  if(settings.address) doc.text(settings.address, W/2, 22, {align: 'center'});
+  const contact = [settings.phone, settings.email].filter(Boolean).join('  |  ');
+  if(contact) doc.text(contact, W/2, 27, {align: 'center'});
+  
+  // Title banner
+  doc.setFillColor(...c2);
+  doc.rect(0, 34, W, 7, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text('STUDENT ACADEMIC REPORT SHEET', W/2, 38.5, {align: 'center'});
+  doc.setFontSize(7);
+  doc.text(result.resultType==='ca'?'CA RESULT':'TERM RESULT', W/2, 42.5, {align: 'center'});
+  y = 43;
+  
+  // ── STUDENT INFO ──
+  doc.setFillColor(245, 247, 250);
+  doc.rect(M, y, W - 2*M, 24, 'F');
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.3);
+  doc.rect(M, y, W - 2*M, 24, 'S');
+  
+  const c1x = M + 3, c2x = W/2 + 2;
+  const term = result.term || '';
+  const session = result.session || '';
+  
+  const infoRows = [
+    [['Name:', student.name], ['Adm No:', student.adm]],
+    [['Class:', student.class || ''], ['Gender:', student.gender || '']],
+    [['Term:', term], ['Session:', session]],
+    [['D.O.B:', student.dob || ''], ['House:', student.house || '']]
+  ];
+  
+  infoRows.forEach((row, i) => {
+    const ry = y + 4 + (i * 5.5);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 120, 140);
+    doc.text(row[0][0], c1x, ry);
+    doc.text(row[1][0], c2x, ry);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(13, 27, 42);
+    doc.text(String(row[0][1] || '—'), c1x + 18, ry);
+    doc.text(String(row[1][1] || '—'), c2x + 20, ry);
+  });
+  y += 27;
+  
+  // ── RESULTS TABLE WITH REMARKS ──
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(13, 27, 42);
+  doc.text('ACADEMIC PERFORMANCE', M, y + 5);
+  y += 10;
+  
+  // Table headers
+  const tableY = y;
+  doc.setFillColor(245, 247, 250);
+  doc.rect(M, tableY, W - 2*M, 8, 'F');
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.3);
+  doc.rect(M, tableY, W - 2*M, 8, 'S');
+  
+  const colWidths = [55, 14, 14, 14, 16, 18, 23];
+  let colX = M + 2;
+  
+  doc.setFontSize(6.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(100, 120, 140);
+  const headers = ['Subject', 'CA', 'Exam', 'Total', 'Grade', 'Pass', 'Remark'];
+  headers.forEach((header, i) => {
+    doc.text(header, colX, tableY + 5);
+    colX += colWidths[i];
+  });
+  
+  y = tableY + 8;
+  
+  // Table rows
+  const subjects = result.subjects || [];
+  let rowIdx = 0;
+  subjects.forEach((subject) => {
+    const rowY = y + (rowIdx * 6);
+    doc.setFillColor(rowIdx % 2 === 0 ? 250 : 255, rowIdx % 2 === 0 ? 250 : 255, rowIdx % 2 === 0 ? 250 : 255);
+    doc.rect(M, rowY, W - 2*M, 6, 'F');
+    doc.setDrawColor(240, 240, 240);
+    doc.setLineWidth(0.2);
+    doc.rect(M, rowY, W - 2*M, 6, 'S');
+    
+    colX = M + 2;
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(13, 27, 42);
+    doc.setFontSize(6);
+    const passThreshold = result.resultType==='ca' ? 16 : 40;
+    const passStatus = (subject.total >= passThreshold) ? 'Pass' : 'Fail';
+    const values = [
+      subject.sub || '',
+      subject.ca || 0,
+      subject.exam || 0,
+      subject.total || 0,
+      subject.grade || '',
+      passStatus,
+      subject.remark || ''
+    ];
+    
+    values.forEach((value, i) => {
+      doc.text(String(value), colX, rowY + 4);
+      colX += colWidths[i];
+    });
+    rowIdx++;
+  });
+  
+  y += rowIdx * 6 + 5;
+  
+  // ── AFFECTIVE DOMAIN (with checkboxes) ──
+  if(result.affective && Object.keys(result.affective).length > 0){
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(13, 27, 42);
+    doc.text('AFFECTIVE DOMAIN', M, y + 5);
+    y += 8;
+    
+    const affSectionHeight = 10 + Math.ceil(AFFECTIVE_TRAITS.length / 2) * 6;
+    doc.setFillColor(...affectivePanelColor);
+    doc.rect(M, y - 3, W - 2*M, affSectionHeight, 'F');
+    
+    doc.setFontSize(6.5);
+    doc.setFont('helvetica', 'normal');
+    let affY = y;
+    AFFECTIVE_TRAITS.forEach((domain, i) => {
+      const key = normalizeTraitKey(domain);
+      const val = result.affective[key];
+      if(i % 2 === 0 && i > 0) affY += 6;
+      const displayX = i % 2 === 0 ? M + 3 : W/2 + 3;
+      doc.setTextColor(100, 120, 140);
+      doc.text(domain, displayX, affY);
+      for(let j = 1; j <= 5; j++) {
+        const checked = val === j ? '☑' : '☐';
+        doc.text(checked, displayX + 60 + (j-1)*5, affY);
+      }
+    });
+    y = affY + 6;
+  }
+  
+  // ── LOCOMOTOR DOMAIN (with checkboxes) ──
+  if(result.locomotor && Object.keys(result.locomotor).length > 0){
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(13, 27, 42);
+    doc.text('LOCOMOTOR/PSYCHOMOTOR DOMAIN', M, y + 5);
+    y += 8;
+    
+    const locSectionHeight = 10 + Math.ceil(LOCOMOTOR_TRAITS.length / 2) * 6;
+    doc.setFillColor(...affectivePanelColor);
+    doc.rect(M, y - 3, W - 2*M, locSectionHeight, 'F');
+    
+    doc.setFontSize(6.5);
+    doc.setFont('helvetica', 'normal');
+    let locY = y;
+    LOCOMOTOR_TRAITS.forEach((domain, i) => {
+      const key = normalizeTraitKey(domain);
+      const val = result.locomotor[key];
+      if(i % 2 === 0 && i > 0) locY += 6;
+      const displayX = i % 2 === 0 ? M + 3 : W/2 + 3;
+      doc.setTextColor(100, 120, 140);
+      doc.text(domain, displayX, locY);
+      for(let j = 1; j <= 5; j++) {
+        const checked = val === j ? '☑' : '☐';
+        doc.text(checked, displayX + 60 + (j-1)*5, locY);
+      }
+    });
+    y = locY + 6;
+  }
+  
+  // ── COMMENTS ──
+  if(result.teacherComment || result.principalComment){
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(13, 27, 42);
+    doc.text('COMMENTS', M, y + 5);
+    y += 8;
+    
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 120, 140);
+    doc.text('Teacher:', M + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(13, 27, 42);
+    const teacherCommentLines = doc.splitTextToSize(result.teacherComment || 'No comment', 70);
+    teacherCommentLines.forEach((line, i) => {
+      doc.text(line, M + 3, y + 5 + (i*3));
+    });
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 120, 140);
+    doc.text('Principal:', W/2 + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(13, 27, 42);
+    const principalCommentLines = doc.splitTextToSize(result.principalComment || 'No comment', 70);
+    principalCommentLines.forEach((line, i) => {
+      doc.text(line, W/2 + 3, y + 5 + (i*3));
+    });
+    
+    y += Math.max(teacherCommentLines.length, principalCommentLines.length) * 3 + 15;
+  }
+  
+  // ── SIGNATURES & STAMP ──
+  const sigY = y;
+  doc.setFillColor(245, 247, 250);
+  doc.rect(M, sigY, W - 2*M, 25, 'F');
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.3);
+  doc.rect(M, sigY, W - 2*M, 25, 'S');
+  
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(100, 120, 140);
+  doc.text('Teacher Signature', M + 3, sigY + 8);
+  doc.text('Principal Signature', W/2 - 5, sigY + 8);
+  doc.text('School Stamp/Logo', W - M - 30, sigY + 8);
+  
+  // Add signature images if available
+  if(result.sigTeacher){
+    try{
+      const type = result.sigTeacher.includes('data:image/png') ? 'PNG' : 'JPEG';
+      doc.addImage(result.sigTeacher, type, M + 3, sigY + 10, 25, 12);
+    } catch(e) {}
+  }
+  if(result.sigPrincipal){
+    try{
+      const type = result.sigPrincipal.includes('data:image/png') ? 'PNG' : 'JPEG';
+      doc.addImage(result.sigPrincipal, type, W/2 - 5, sigY + 10, 25, 12);
+    } catch(e) {}
+  }
+  if(result.schoolStamp){
+    try{
+      const type = result.schoolStamp.includes('data:image/png') ? 'PNG' : 'JPEG';
+      doc.addImage(result.schoolStamp, type, W - M - 30, sigY + 10, 25, 12);
+    } catch(e) {}
+  }
+  
+  // ── BEAUTIFUL SUMMARY BOX ──
+  const totalScore = subjects.reduce((sum, s) => sum + (s.total || 0), 0);
+  const avgScore = subjects.length > 0 ? (totalScore / subjects.length).toFixed(1) : 0;
+  const overallGrade = getGrade(avgScore);
+  const passedCount = subjects.filter(s => (s.total || 0) >= 40).length;
+  
+  // Large percentage display
+  doc.setFillColor(...c1);
+  doc.rect(M, H - 40, W - 2*M, 20, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${avgScore}%`, W/2, H - 23, {align: 'center'});
+  doc.setFontSize(10);
+  doc.text(`OVERALL AVERAGE`, W/2, H - 17, {align: 'center'});
+  
+  // Detailed summary
+  doc.setFillColor(245, 247, 250);
+  doc.rect(M, H - 15, W - 2*M, 12, 'F');
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.3);
+  doc.rect(M, H - 15, W - 2*M, 12, 'S');
+  doc.setTextColor(13, 27, 42);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Grade: ${overallGrade} (${getRemark(avgScore)}) | Passed: ${passedCount}/${subjects.length} | Date: ${new Date().toLocaleDateString()}`, W/2, H - 8, {align: 'center'});
+  
+  // Download the PDF
+  const filename = `${student.name.replace(/[^a-zA-Z0-9]/g, '_')}_Result_${term}_${session}.pdf`;
+  doc.save(filename);
+  showPopup('✅ Student PDF downloaded successfully!', 'success');
+}
+
+function getResultPercent(total, resultType){
+  const value = parseFloat(total);
+  if(isNaN(value)) return 0;
+  return resultType==='ca' ? (value / 40) * 100 : (value / 100) * 100;
+}
+
+function getGrade(score){
+  const s = parseFloat(score);
+  if(isNaN(s)) return '';
+  const grade = GRADE_SCALE.find(item => s >= item.min);
+  return grade ? grade.grade : '';
+}
+
+function getRemark(score){
+  const s = parseFloat(score);
+  if(isNaN(s)) return '';
+  const grade = GRADE_SCALE.find(item => s >= item.min);
+  return grade ? grade.remark : '';
+}
+
+function normalizeTraitKey(name){
+  return String(name).toLowerCase().replace(/[^a-z0-9]/g,'');
+}
+
+function hexToRgb(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return[r,g,b];
+}
+
+function openCreateResultModal(){
+  const schoolSelect=document.getElementById('create-school-select');
+  schoolSelect.innerHTML='<option value="">Choose a school...</option>';
+  const schools=getSchools();
+  schools.forEach(s=>schoolSelect.innerHTML+=`<option value="${s.id}">${s.name}</option>`);
+  document.getElementById('create-student-select').innerHTML='<option value="">Choose a student...</option>';
+  document.getElementById('create-result-type').value='term';
+  document.getElementById('create-term').value='1st Term';
+  document.getElementById('create-session').value='';
+  document.getElementById('create-teacher-comment').value='';
+  document.getElementById('create-principal-comment').value='';
+  document.getElementById('create-subjects-list').innerHTML='';
+  addCreateSubjectRow();
+  buildCreateTraitGrid('create-affective-grid', AFFECTIVE_TRAITS, 'create-affective');
+  buildCreateTraitGrid('create-locomotor-grid', LOCOMOTOR_TRAITS, 'create-locomotor');
+  document.getElementById('create-modal').classList.add('open');
+  document.getElementById('modal-overlay-close').style.display='block';
+}
+
+function loadCreateStudents(){
+  const schoolId=document.getElementById('create-school-select').value;
+  const studentSelect=document.getElementById('create-student-select');
+  const students=getStudentsBySchool(schoolId);
+  studentSelect.innerHTML='<option value="">Choose a student...</option>';
+  students.forEach(student=>{
+    studentSelect.innerHTML+=`<option value="${student.id}">${student.name} (${student.class||'No Class'})</option>`;
+  });
+  document.getElementById('create-subjects-list').innerHTML='';
+  if(students.length===0){
+    addCreateSubjectRow();
+  }
+}
+
+function loadCreateSubjectsFromStudent(){
+  const schoolId=document.getElementById('create-school-select').value;
+  const studentId=document.getElementById('create-student-select').value;
+  const resultType=document.getElementById('create-result-type').value;
+  const term=document.getElementById('create-term').value;
+  const session=document.getElementById('create-session').value.trim();
+  const students=getStudentsBySchool(schoolId);
+  const student=students.find(s=>s.id===studentId);
+  if(student){
+    const subjects=getDefaultSubjectsForClass(student.class);
+    document.getElementById('create-subjects-list').innerHTML='';
+
+    // If creating term result, try to get CA scores from existing CA result
+    let caScores = {};
+    if(resultType === 'term'){
+      const results = getResultsBySchool(schoolId);
+      const caResult = results.find(r => r.studentId === studentId && r.resultType === 'ca' && r.term === term && r.session === session);
+      if(caResult && caResult.subjects){
+        caResult.subjects.forEach(s => {
+          caScores[s.sub] = s.ca || 0;
+        });
+      }
+    }
+
+    subjects.forEach(subject=>{
+      const caScore = caScores[subject] !== undefined ? caScores[subject] : '';
+      addCreateSubjectRow({sub:subject, ca:caScore, exam:'', total:'', grade:'', remark:''});
+    });
+    updateCreateResultTypeUI();
+  }
+}
+
+function getClassGroup(className){
+  if(!className) return 'Primary';
+  const normalized=className.trim().toLowerCase();
+  for(const group in CLASS_GROUPS){
+    if(CLASS_GROUPS[group].some(name=>name.toLowerCase()===normalized)) return group;
+  }
+  return 'Primary';
+}
+
+function getDefaultSubjectsForClass(className){
+  const group=getClassGroup(className);
+  return SUBJECT_CATEGORIES[group] ? [...SUBJECT_CATEGORIES[group]] : ['Mathematics','English Language','Basic Science'];
+}
+
+function addCreateSubjectRow(subjectData={}){
+  const container=document.getElementById('create-subjects-list');
+  const rowId=`create-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,5)}`;
+  const sub=subjectData.sub||'';
+  const ca=subjectData.ca!=null?subjectData.ca:'';
+  const exam=subjectData.exam!=null?subjectData.exam:'';
+  const total=subjectData.total!=null?subjectData.total:'';
+  const grade=subjectData.grade||'';
+  const remark=subjectData.remark||'';
+  const row=document.createElement('div');
+  row.className='create-subject-row';
+  row.style.marginBottom='12px';
+  row.style.background='#fff';
+  row.style.padding='12px';
+  row.style.border='1px solid var(--border)';
+  row.style.borderRadius='8px';
+  row.dataset.rowId=rowId;
+  row.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;align-items:flex-end">
+      <div><label>Subject</label><input type="text" id="create-sub-${rowId}" value="${sub}" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px"/></div>
+      <div><label>CA (40)</label><input type="number" min="0" max="40" id="create-ca-${rowId}" value="${ca}" onchange="refreshCreateSubjectTotals()" oninput="refreshCreateSubjectTotals()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px"/></div>
+      <div class="create-modal-exam-field"><label>Exam (60)</label><input type="number" min="0" max="60" id="create-exam-${rowId}" value="${exam}" onchange="refreshCreateSubjectTotals()" oninput="refreshCreateSubjectTotals()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px"/></div>
+      <div class="create-modal-total-field"><label class="create-label-total">Total</label><input type="text" id="create-total-${rowId}" value="${total}" readonly style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--surface)"/></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:flex-end;margin-top:8px">
+      <div><label>Grade</label><input type="text" id="create-grade-${rowId}" value="${grade}" readonly style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--surface)"/></div>
+      <div><label>Remark</label><input type="text" id="create-remark-${rowId}" value="${remark}" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px"/></div>
+      <div style="display:flex;align-items:flex-end;justify-content:flex-end"><button class="btn btn-danger btn-sm" type="button" onclick="removeCreateSubjectRow(this)">Remove</button></div>
+    </div>
+  `;
+  container.appendChild(row);
+  updateCreateResultTypeUI();
+}
+
+function removeCreateSubjectRow(button){
+  const row=button.closest('.create-subject-row');
+  if(row){
+    row.remove();
+    refreshCreateSubjectTotals();
+  }
+}
+
+function updateCreateResultTypeUI(){
+  const type=document.getElementById('create-result-type')?.value||'term';
+  document.querySelectorAll('#create-modal .create-modal-exam-field').forEach(el=>el.style.display=type==='ca'?'none':'block');
+  document.querySelectorAll('#create-modal .create-modal-total-field .create-label-total').forEach(el=>el.textContent=type==='ca'?'Total (CA)':'Total (CA+Exam)');
+  refreshCreateSubjectTotals();
+}
+
+function refreshCreateSubjectTotals(){
+  const type=document.getElementById('create-result-type')?.value||'term';
+  document.querySelectorAll('#create-subjects-list .create-subject-row').forEach(row=>{
+    const rowId=row.dataset.rowId;
+    const ca=parseInt(document.getElementById(`create-ca-${rowId}`)?.value)||0;
+    const examInput=document.getElementById(`create-exam-${rowId}`);
+    const exam=type==='ca'?0:(parseInt(examInput?.value)||0);
+    const total=ca+exam;
+    document.getElementById(`create-total-${rowId}`).value=total;
+    document.getElementById(`create-grade-${rowId}`).value=getGrade(getResultPercent(total,type));
+  });
+}
+
+function buildCreateTraitGrid(targetId, traitList, namePrefix){
+  const container=document.getElementById(targetId);
+  if(!container) return;
+  container.innerHTML = traitList.map((trait,i)=>{
+    const fieldName = normalizeTraitKey(trait);
+    const radios = Array.from({length:5},(_,j)=>`<label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="${namePrefix}-${i}" value="${j+1}" style="cursor:pointer"/> <span>${j+1}</span></label>`).join('');
+    return `<div style="border:1px solid var(--border);padding:8px;border-radius:4px;background:white"><div style="font-weight:600;margin-bottom:6px;font-size:11px">${trait}</div><div style="display:flex;gap:8px;flex-wrap:wrap">${radios}</div></div>`;
+  }).join('');
+}
+
+function saveNewResult(){
+  const schoolId=document.getElementById('create-school-select').value;
+  const studentId=document.getElementById('create-student-select').value;
+  const resultType=document.getElementById('create-result-type').value;
+  const term=document.getElementById('create-term').value;
+  const session=document.getElementById('create-session').value.trim();
+  if(!schoolId||!studentId){
+    showPopup('Please choose a school and a student before creating a result','error');
+    return;
+  }
+  const students=getStudentsBySchool(schoolId);
+  const student=students.find(s=>s.id===studentId);
+  const subjects=[];
+  document.querySelectorAll('#create-subjects-list .create-subject-row').forEach(row=>{
+    const rowId=row.dataset.rowId;
+    const sub=document.getElementById(`create-sub-${rowId}`)?.value.trim();
+    if(!sub) return;
+    const ca=parseInt(document.getElementById(`create-ca-${rowId}`)?.value)||0;
+    const exam=document.getElementById(`create-exam-${rowId}`)?parseInt(document.getElementById(`create-exam-${rowId}`)?.value)||0:0;
+    const total=ca + (resultType==='ca'?0:exam);
+    subjects.push({
+      sub,
+      ca,
+      exam: resultType==='ca'?0:exam,
+      total,
+      grade:getGrade(getResultPercent(total,resultType)),
+      remark:document.getElementById(`create-remark-${rowId}`)?.value.trim()||getRemark(getResultPercent(total,resultType))
+    });
+  });
+  if(subjects.length===0){
+    showPopup('Please add at least one subject score','error');
+    return;
+  }
+
+  const affective={};
+  AFFECTIVE_TRAITS.forEach((trait,i)=>{
+    const selected=document.querySelector(`#create-affective-grid input[name='create-affective-${i}']:checked`);
+    if(selected) affective[normalizeTraitKey(trait)] = parseInt(selected.value);
+  });
+
+  const locomotor={};
+  LOCOMOTOR_TRAITS.forEach((trait,i)=>{
+    const selected=document.querySelector(`#create-locomotor-grid input[name='create-locomotor-${i}']:checked`);
+    if(selected) locomotor[normalizeTraitKey(trait)] = parseInt(selected.value);
+  });
+
+  const totalScore=subjects.reduce((sum,s)=>sum+(s.total||0),0);
+  const avgScore=subjects.length>0?subjects.reduce((sum,s)=>sum + getResultPercent(s.total,resultType),0)/subjects.length:0;
+  const result={
+    id:'res-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6),
+    studentId:studentId,
+    resultType:resultType,
+    term:term,
+    session:session,
+    subjects:subjects,
+    overallTotal:totalScore,
+    avg:parseFloat(avgScore.toFixed(2)),
+    grade:getGrade(avgScore),
+    remark:getRemark(avgScore),
+    affective:Object.keys(affective).length?affective:null,
+    locomotor:Object.keys(locomotor).length?locomotor:null,
+    teacherComment:document.getElementById('create-teacher-comment').value.trim(),
+    principalComment:document.getElementById('create-principal-comment').value.trim(),
+    modifiedDate:new Date().toISOString()
+  };
+
+  const results=getResultsBySchool(schoolId);
+  results.push(result);
+  saveResultsBySchool(schoolId,results);
+  closeCreateModal();
+  showPopup('New result created successfully!','success');
+  filterResults();
+}
+
+function closeCreateModal(){
+  document.getElementById('create-modal').classList.remove('open');
+  const overlay=document.getElementById('modal-overlay-close');
+  if(!document.getElementById('edit-modal').classList.contains('open')) overlay.style.display='none';
+}
+
+// Coupons
+function generateCoupons(){
+  const type=document.getElementById('coupon-type').value;
+  const qty=parseInt(document.getElementById('coupon-qty').value)||1;
+  const coupons=getCoupons();
+  for(let i=0;i<qty;i++){
+    const code=type+'-'+Date.now().toString().slice(-4)+'-'+Math.random().toString(36).slice(2,7).toUpperCase();
+    coupons.push({code,type,studentLimit:parseInt(type)||null,used:false,generatedDate:new Date().toISOString(),usedDate:null,usedBy:null,usedStudents:0});
+  }
+  saveCoupons(coupons);
+  showPopup(`Generated ${qty} coupon(s) for ${type==='unlimited'?'unlimited':type} students`, 'success');
+  loadCoupons();
+}
+
+function loadCoupons(){
+  const coupons=getCoupons();
+  const used=coupons.filter(c=>c.used).length;
+  document.getElementById('stat-total-coupons').textContent=coupons.length;
+  document.getElementById('stat-used-coupons').textContent=used;
+  document.getElementById('stat-available-coupons').textContent=coupons.length-used;
+  const rows=coupons.map(c=>`<tr>
+    <td><code style="font-size:11px;background:var(--surface);padding:4px 8px;border-radius:4px">${c.code}</code></td>
+    <td>${c.type==='unlimited'?'Unlimited Students':c.type+' Students'}</td>
+    <td><span class="badge ${c.used?'badge-used':'badge-available'}">${c.used?'Used':'Available'}</span></td>
+    <td>${c.usedBy||'-'}</td>
+    <td>${getSchools().find(s=>s.id===c.usedBy)?.name||'-'}</td>
+    <td>${c.usedStudents||0}${c.studentLimit!==null?'/'+c.studentLimit:'/∞'}</td>
+    <td>${new Date(c.used?c.usedDate:c.generatedDate).toLocaleDateString()}</td>
+    <td><button class="btn btn-sm btn-danger" onclick="deleteCoupon('${c.code}')">Delete</button></td>
+  </tr>`).join('');
+  document.getElementById('coupons-tbody').innerHTML=rows||'<tr><td colspan="8" style="text-align:center;color:var(--muted)">No coupons</td></tr>';
+}
+
+function deleteCoupon(code){
+  if(!confirm('Delete coupon: '+code+'?\n\nThis action cannot be undone!')) return;
+  const coupons=getCoupons().filter(c=>c.code!==code);
+  saveCoupons(coupons);
+  loadCoupons();
+  loadDashboard();
+  showPopup('Coupon deleted successfully!', 'success');
+}
+
+// Validate student registration against coupon limit
+function validateStudentRegistration(schoolId,newStudentCount){
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  if(!school) return true;
+  
+  const coupons=getCoupons().filter(c=>c.usedBy===schoolId&&c.used);
+  for(let coupon of coupons){
+    if(coupon.studentLimit===null) return true; // Unlimited
+    if(newStudentCount>coupon.studentLimit){
+      return false; // Exceeded limit
+    }
+  }
+  return true;
+}
+
+// Admin Management
+function loadAdminManagement(){
+  const schools=getSchools();
+  const rows=schools.map(s=>`<tr>
+    <td>${s.name}</td>
+    <td><span class="badge badge-active">Active</span></td>
+    <td>${s.subscriptionType||'trial'}</td>
+    <td>${new Date(s.createdDate||Date.now()).toLocaleDateString()}</td>
+    <td>
+      <button class="btn btn-outline btn-sm" onclick="resetAdminPassword('${s.id}')">Reset Pass</button>
+      <button class="btn btn-danger btn-sm" onclick="revokeAdminLicense('${s.id}')">Revoke</button>
+      <button class="btn btn-primary btn-sm" onclick="loginAsAdmin('${s.id}')">Login As</button>
+    </td>
+  </tr>`).join('');
+  document.getElementById('admins-tbody').innerHTML=rows||'<tr><td colspan="5" style="text-align:center;color:var(--muted)">No admins</td></tr>';
+}
+
+// School Settings Management
+function loadSchoolSettingsPage(){
+  const schoolSelect=document.getElementById('settings-school');
+  schoolSelect.innerHTML='<option value="">Choose a school...</option>';
+  const schools=getSchools();
+  schools.forEach(school=>{
+    schoolSelect.innerHTML+=`<option value="${school.id}">${school.name}</option>`;
+  });
+}
+
+function loadSchoolSettings(){
+  const schoolId=document.getElementById('settings-school').value;
+  if(!schoolId){
+    document.getElementById('school-settings-content').style.display='none';
+    return;
+  }
+  
+  const settings=DB.get(`sh_${schoolId}_settings`,{});
+  document.getElementById('school-settings-content').style.display='block';
+  
+  // Load school stamp preview
+  if(settings.schoolStamp){
+    document.getElementById('school-stamp-preview').innerHTML=`<img src="${settings.schoolStamp}" style="max-width:100%;max-height:100%;border-radius:6px"/>`;
+  } else {
+    document.getElementById('school-stamp-preview').innerHTML='No image uploaded';
+  }
+  
+  // Load principal signature preview
+  if(settings.principalSignature){
+    document.getElementById('principal-sig-preview').innerHTML=`<img src="${settings.principalSignature}" style="max-width:100%;max-height:100%;border-radius:6px"/>`;
+  } else {
+    document.getElementById('principal-sig-preview').innerHTML='No image uploaded';
+  }
+  
+  document.getElementById('school-color-primary').value = settings.color1 || PDF_THEME_DEFAULTS.primaryColor;
+  document.getElementById('school-color-secondary').value = settings.color2 || PDF_THEME_DEFAULTS.secondaryColor;
+  document.getElementById('school-color-affective').value = settings.affectivePanelColor || PDF_THEME_DEFAULTS.affectivePanelColor;
+  
+  // Load class-specific signatures
+  const classSignatures=settings.classSignatures||{};
+  const classList=document.getElementById('class-signatures-list');
+  classList.innerHTML='';
+  
+  Object.keys(classSignatures).forEach(className=>{
+    const sig=classSignatures[className];
+    const card=document.createElement('div');
+    card.style.cssText='border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--surface)';
+    card.innerHTML=`
+      <div style="font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <span>${className}</span>
+        <button class="btn btn-danger btn-sm" onclick="deleteClassSignature('${schoolId}','${className}')">🗑️</button>
+      </div>
+      <div style="width:100%;height:80px;border:1px dashed var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;background:white">
+        ${sig?`<img src="${sig}" style="max-width:100%;max-height:100%;border-radius:4px"/>`:'No image'}
+      </div>
+      <input type="file" id="class-sig-${className}" accept="image/*" style="width:100%;padding:6px;border:1px solid var(--border);border-radius:4px;font-size:11px"/>
+      <button class="btn btn-primary btn-sm" onclick="uploadClassSignature('${schoolId}','${className}')" style="width:100%;margin-top:8px;justify-content:center">📤 Update</button>
+    `;
+    classList.appendChild(card);
+  });
+}
+
+function addClassSignatureField(){
+  const className=document.getElementById('class-name-input').value.trim();
+  if(!className){
+    showPopup('Please enter a class name','error');
+    return;
+  }
+  
+  const schoolId=document.getElementById('settings-school').value;
+  if(!schoolId){
+    showPopup('Please select a school first','error');
+    return;
+  }
+  
+  const settings=DB.get(`sh_${schoolId}_settings`,{});
+  settings.classSignatures=settings.classSignatures||{};
+  
+  if(settings.classSignatures[className]!==undefined){
+    showPopup(`Class "${className}" already exists`,'warning');
+    return;
+  }
+  
+  settings.classSignatures[className]='';
+  DB.set(`sh_${schoolId}_settings`,settings);
+  document.getElementById('class-name-input').value='';
+  loadSchoolSettings();
+  showPopup(`Class "${className}" added successfully`,'success');
+}
+
+function uploadSchoolStamp(){
+  const schoolId=document.getElementById('settings-school').value;
+  const fileInput=document.getElementById('school-stamp-upload');
+  
+  if(!schoolId){
+    showPopup('Please select a school first','error');
+    return;
+  }
+  
+  if(!fileInput.files[0]){
+    showPopup('Please select an image file','error');
+    return;
+  }
+  
+  const file=fileInput.files[0];
+  if(file.size>5*1024*1024){
+    showPopup('File size must be less than 5MB','error');
+    return;
+  }
+  
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const settings=DB.get(`sh_${schoolId}_settings`,{});
+    settings.schoolStamp=e.target.result;
+    DB.set(`sh_${schoolId}_settings`,settings);
+    fileInput.value='';
+    loadSchoolSettings();
+    showPopup('School stamp uploaded successfully','success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function uploadPrincipalSignature(){
+  const schoolId=document.getElementById('settings-school').value;
+  const fileInput=document.getElementById('principal-sig-upload');
+  
+  if(!schoolId){
+    showPopup('Please select a school first','error');
+    return;
+  }
+  
+  if(!fileInput.files[0]){
+    showPopup('Please select an image file','error');
+    return;
+  }
+  
+  const file=fileInput.files[0];
+  if(file.size>5*1024*1024){
+    showPopup('File size must be less than 5MB','error');
+    return;
+  }
+  
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const settings=DB.get(`sh_${schoolId}_settings`,{});
+    settings.principalSignature=e.target.result;
+    DB.set(`sh_${schoolId}_settings`,settings);
+    fileInput.value='';
+    loadSchoolSettings();
+    showPopup('Principal signature uploaded successfully','success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveSchoolThemeColors(){
+  const schoolId=document.getElementById('settings-school').value;
+  if(!schoolId){
+    showPopup('Please select a school first','error');
+    return;
+  }
+  const settings=DB.get(`sh_${schoolId}_settings`,{});
+  settings.color1 = document.getElementById('school-color-primary').value || PDF_THEME_DEFAULTS.primaryColor;
+  settings.color2 = document.getElementById('school-color-secondary').value || PDF_THEME_DEFAULTS.secondaryColor;
+  settings.affectivePanelColor = document.getElementById('school-color-affective').value || PDF_THEME_DEFAULTS.affectivePanelColor;
+  DB.set(`sh_${schoolId}_settings`,settings);
+  showPopup('PDF theme colors saved successfully','success');
+}
+
+function uploadClassSignature(schoolId,className){
+  const fileInput=document.getElementById(`class-sig-${className}`);
+  
+  if(!fileInput.files[0]){
+    showPopup('Please select an image file','error');
+    return;
+  }
+  
+  const file=fileInput.files[0];
+  if(file.size>5*1024*1024){
+    showPopup('File size must be less than 5MB','error');
+    return;
+  }
+  
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const settings=DB.get(`sh_${schoolId}_settings`,{});
+    settings.classSignatures=settings.classSignatures||{};
+    settings.classSignatures[className]=e.target.result;
+    DB.set(`sh_${schoolId}_settings`,settings);
+    loadSchoolSettings();
+    showPopup(`Signature for ${className} uploaded successfully`,'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function deleteClassSignature(schoolId,className){
+  if(!confirm(`Delete signature for ${className}?`)) return;
+  
+  const settings=DB.get(`sh_${schoolId}_settings`,{});
+  settings.classSignatures=settings.classSignatures||{};
+  delete settings.classSignatures[className];
+  DB.set(`sh_${schoolId}_settings`,settings);
+  loadSchoolSettings();
+  showPopup(`Signature for ${className} deleted`,'success');
+}
+
+function resetAdminPassword(schoolId){
+  const pass=prompt('New password:');
+  if(!pass) return;
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  if(school){
+    school.passHash=simpleHash(pass);
+    saveSchools(schools);
+    showPopup('Password reset', 'success');
+  }
+}
+
+function revokeAdminLicense(schoolId){
+  if(!confirm('Revoke license?')) return;
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  if(school){
+    school.subscriptionType='revoked';
+    saveSchools(schools);
+    showPopup('License revoked', 'warning');
+    loadAdminManagement();
+  }
+}
+
+function loginAsAdmin(schoolId){
+  window.location.href='index.html?impersonate='+encodeURIComponent(schoolId);
+}
+
+// Logs
+function loadLogs(){
+  const logs=getLogs();
+  const rows=logs.slice().reverse().map(l=>`<tr>
+    <td>${new Date(l.timestamp).toLocaleString()}</td>
+    <td>${getSchools().find(s=>s.id===l.schoolId)?.name||l.schoolId}</td>
+    <td>${l.action}</td>
+    <td>${l.details}</td>
+  </tr>`).join('');
+  document.getElementById('logs-tbody').innerHTML=rows||'<tr><td colspan="4" style="text-align:center;color:var(--muted)">No logs</td></tr>';
+}
+
+function loadPrintResultsPage(){
+  const schoolSelect=document.getElementById('print-school');
+  schoolSelect.innerHTML='<option value="">All Schools</option>';
+  
+  const schools=getSchools();
+  schools.forEach(school=>{
+    schoolSelect.innerHTML+=`<option value="${school.id}">${school.name}</option>`;
+  });
+  
+  // Load all classes initially
+  loadClassesForPrint();
+  
+  // Hide preview initially
+  document.getElementById('print-preview').style.display='none';
+}
+
+// Print Results Functions
+function loadClassesForPrint(){
+  const schoolId=document.getElementById('print-school').value;
+  const classSelect=document.getElementById('print-class');
+  classSelect.innerHTML='<option value="">All Classes</option>';
+  
+  if(!schoolId){
+    // Load all classes from all schools
+    const schools=getSchools();
+    const allClasses=new Set();
+    schools.forEach(school=>{
+      const students=getStudentsBySchool(school.id);
+      students.forEach(student=>{
+        if(student.class) allClasses.add(student.class);
+      });
+    });
+    Array.from(allClasses).sort().forEach(cls=>{
+      classSelect.innerHTML+=`<option value="${cls}">${cls}</option>`;
+    });
+  }else{
+    // Load classes for specific school
+    const students=getStudentsBySchool(schoolId);
+    const classes=new Set();
+    students.forEach(student=>{
+      if(student.class) classes.add(student.class);
+    });
+    Array.from(classes).sort().forEach(cls=>{
+      classSelect.innerHTML+=`<option value="${cls}">${cls}</option>`;
+    });
+  }
+}
+
+function previewPrintResults(){
+  const schoolId=document.getElementById('print-school').value;
+  const classFilter=document.getElementById('print-class').value;
+  const termFilter=document.getElementById('print-term').value;
+  const sessionFilter=document.getElementById('print-session').value;
+  
+  let allResults=[],schoolsToProcess;
+  
+  if(schoolId){
+    schoolsToProcess=[getSchools().find(s=>s.id===schoolId)].filter(Boolean);
+  }else{
+    schoolsToProcess=getSchools();
+  }
+  
+  schoolsToProcess.forEach(school=>{
+    const results=getResultsBySchool(school.id);
+    const students=getStudentsBySchool(school.id);
+    
+    results.forEach(result=>{
+      const student=students.find(s=>s.id===result.studentId);
+      if(student){
+        const matchesClass=!classFilter||student.class===classFilter;
+        const matchesTerm=!termFilter||result.term===termFilter;
+        const matchesSession=!sessionFilter||result.session===sessionFilter;
+        
+        if(matchesClass&&matchesTerm&&matchesSession){
+          allResults.push({
+            school:school,
+            student:student,
+            result:result
+          });
+        }
+      }
+    });
+  });
+  
+  // Group by school and class
+  const grouped={};
+  allResults.forEach(item=>{
+    const key=`${item.school.id}-${item.student.class||'No Class'}`;
+    if(!grouped[key]) grouped[key]=[];
+    grouped[key].push(item);
+  });
+  
+  let previewHTML='<div style="font-size:12px;max-height:400px;overflow-y:auto">';
+  Object.keys(grouped).forEach(key=>{
+    const items=grouped[key];
+    const school=items[0].school;
+    const className=items[0].student.class||'No Class';
+    
+    previewHTML+=`<div style="margin-bottom:20px;border:1px solid var(--border);padding:10px;border-radius:8px">
+      <h4 style="margin:0 0 10px 0;color:var(--navy)">${school.name} - Class ${className}</h4>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr style="background:var(--surface)">
+          <th style="padding:4px;text-align:left;border:1px solid var(--border)">Student</th>
+          <th style="padding:4px;text-align:left;border:1px solid var(--border)">Type</th>
+          <th style="padding:4px;text-align:left;border:1px solid var(--border)">Subjects</th>
+          <th style="padding:4px;text-align:left;border:1px solid var(--border)">Total</th>
+          <th style="padding:4px;text-align:left;border:1px solid var(--border)">Average</th>
+          <th style="padding:4px;text-align:left;border:1px solid var(--border)">Grade</th>
+        </tr></thead>
+        <tbody>`;
+    
+    items.forEach(item=>{
+      previewHTML+=`<tr>
+        <td style="padding:4px;border:1px solid var(--border)">${item.student.name}</td>
+        <td style="padding:4px;border:1px solid var(--border)">${item.result.resultType==='ca'?'CA':'Term'}</td>
+        <td style="padding:4px;border:1px solid var(--border)">${item.result.subjects?.length||0}</td>
+        <td style="padding:4px;border:1px solid var(--border)">${item.result.overallTotal!=null?item.result.overallTotal:'-'}</td>
+        <td style="padding:4px;border:1px solid var(--border)">${item.result.avg!=null?item.result.avg.toFixed(2):'-'}</td>
+        <td style="padding:4px;border:1px solid var(--border)">${item.result.grade||'-'}</td>
+      </tr>`;
+    });
+    
+    previewHTML+='</tbody></table></div>';
+  });
+  
+  if(Object.keys(grouped).length===0){
+    previewHTML='<p style="color:var(--muted);text-align:center;padding:20px">No results found matching the criteria</p>';
+  }
+  
+  previewHTML+='</div>';
+  
+  document.getElementById('preview-content').innerHTML=previewHTML;
+  document.getElementById('print-preview').style.display='block';
+}
+
+function printResultsPDF(){
+  const schoolId=document.getElementById('print-school').value;
+  const classFilter=document.getElementById('print-class').value;
+  const termFilter=document.getElementById('print-term').value;
+  const sessionFilter=document.getElementById('print-session').value;
+  const includeLogo=document.getElementById('print-include-logo').checked;
+
+  let allResults=[];
+  const schoolsToProcess = schoolId ? [getSchools().find(s=>s.id===schoolId)].filter(Boolean) : getSchools();
+
+  schoolsToProcess.forEach(school=>{
+    const results=getResultsBySchool(school.id);
+    const students=getStudentsBySchool(school.id);
+    results.forEach(result=>{
+      const student=students.find(s=>s.id===result.studentId);
+      if(!student) return;
+      const matchesClass=!classFilter||student.class===classFilter;
+      const matchesTerm=!termFilter||result.term===termFilter;
+      const matchesSession=!sessionFilter||result.session===sessionFilter;
+      if(matchesClass&&matchesTerm&&matchesSession){
+        allResults.push({school, student, result});
+      }
+    });
+  });
+
+  if(allResults.length===0){
+    showPopup('No results found matching the criteria', 'info');
+    return;
+  }
+
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pageHeight=doc.internal.pageSize.height;
+  const W=210, M=12;
+
+  allResults.forEach((item,index)=>{
+    if(index>0) doc.addPage();
+
+    const school=item.school;
+    const result=item.result;
+    const student=item.student;
+    const settings = DB.get(`sh_${school.id}_settings`, {});
+    const c1 = hexToRgb(settings.color1 || PDF_THEME_DEFAULTS.primaryColor);
+    const c2 = hexToRgb(settings.color2 || PDF_THEME_DEFAULTS.secondaryColor);
+    const affPanel = hexToRgb(settings.affectivePanelColor || PDF_THEME_DEFAULTS.affectivePanelColor);
+
+    let y=0;
+    doc.setFillColor(...c1);
+    doc.rect(0,0,W,34,'F');
+    doc.setTextColor(...c2);
+    doc.setFontSize(15);
+    doc.setFont('helvetica','bold');
+    doc.text(school.name, W/2, 11, {align:'center'});
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(8);
+    doc.setFont('helvetica','normal');
+    if(settings.motto) doc.text(`"${settings.motto}"`, W/2, 17, {align:'center'});
+    if(settings.address) doc.text(settings.address, W/2, 22, {align:'center'});
+    const contact=[settings.phone,settings.email].filter(Boolean).join('  |  ');
+    if(contact) doc.text(contact, W/2, 27, {align:'center'});
+    if(includeLogo && settings.schoolStamp){
+      try{
+        const imgType=settings.schoolStamp.includes('data:image/png') ? 'PNG' : 'JPEG';
+        doc.addImage(settings.schoolStamp, imgType, M, 3, 25, 25);
+      }catch(e){}
+    }
+
+    doc.setFillColor(...c2);
+    doc.rect(0,34,W,7,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(9);
+    doc.setFont('helvetica','bold');
+    doc.text('STUDENT ACADEMIC REPORT SHEET', W/2, 38.5, {align:'center'});
+    doc.setFontSize(7);
+    doc.text(result.resultType==='ca'?'CA RESULT':'TERM RESULT', W/2, 42.5, {align:'center'});
+    y = 43;
+
+    doc.setFillColor(245,247,250);
+    doc.rect(M, y, W-2*M, 24,'F');
+    doc.setDrawColor(220,220,220);
+    doc.setLineWidth(0.3);
+    doc.rect(M,y,W-2*M,24,'S');
+
+    const infoRows = [
+      [['Name:',student.name],['Adm No:',student.adm]],
+      [['Class:',student.class||''],['Gender:',student.gender||'']],
+      [['Term:',result.term||''],['Session:',result.session||'']],
+      [['D.O.B:',student.dob||''],['House:',student.house||'']]
+    ];
+    infoRows.forEach((row,i)=>{
+      const ry=y+4+(i*5.5);
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(100,120,140);
+      doc.text(row[0][0], M+3, ry);
+      doc.text(row[1][0], W/2+2, ry);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(13,27,42);
+      doc.text(String(row[0][1]||'—'), M+21, ry);
+      doc.text(String(row[1][1]||'—'), W/2+22, ry);
+    });
+    y += 27;
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(13,27,42);
+    doc.text('ACADEMIC PERFORMANCE', M, y+5);
+    y += 10;
+
+    const subjectRows = (result.subjects||[]).map(subj=>[
+      subj.sub||'-',
+      subj.ca!=null?subj.ca:'-',
+      result.resultType==='ca'?'-':(subj.exam!=null?subj.exam:'-'),
+      subj.total!=null?subj.total:'-',
+      subj.grade||'-',
+      subj.remark||'-',
+      subj.total!=null?((result.resultType==='ca'? subj.total >= 16 : subj.total >= 40)?'Pass':'Fail'):'-'
+    ]);
+
+    doc.autoTable({
+      startY:y,
+      head:[['Subject', 'CA', 'Exam', 'Total', 'Grade', 'Remark', 'Status']],
+      body:subjectRows,
+      styles:{fontSize:8},
+      headStyles:{fillColor:c1, textColor:255},
+      theme:'striped',
+      columnStyles:{0:{cellWidth:50},1:{halign:'center'},2:{halign:'center'},3:{halign:'center'},4:{halign:'center'},6:{halign:'center'}},
+      margin:{left:M,right:M}
+    });
+
+    y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 8 : y + 40;
+    if(y > pageHeight - 90){ doc.addPage(); y = 20; }
+
+    if(result.affective && Object.keys(result.affective).length > 0){
+      doc.setFillColor(...affPanel);
+      const sectionHeight = 8 + Math.ceil(AFFECTIVE_TRAITS.length / 2) * 6;
+      doc.rect(M, y-3, W-2*M, sectionHeight, 'F');
+      doc.setFontSize(8);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(13,27,42);
+      doc.text('AFFECTIVE DOMAIN', M, y+5);
+      y += 8;
+      doc.setFontSize(6.5);
+      doc.setFont('helvetica','normal');
+      AFFECTIVE_TRAITS.forEach((trait,i)=>{
+        const val=result.affective[normalizeTraitKey(trait)];
+        if(i%2===0 && i>0) y += 6;
+        const displayX = i%2===0 ? M+3 : W/2+3;
+        doc.setTextColor(100,120,140);
+        doc.text(trait, displayX, y);
+        doc.setTextColor(13,27,42);
+        doc.text(String(val||'-'), displayX+55, y);
+      });
+      y += 10;
+    }
+
+    if(result.locomotor && Object.keys(result.locomotor).length > 0){
+      doc.setFillColor(...affPanel);
+      const sectionHeight = 8 + Math.ceil(LOCOMOTOR_TRAITS.length / 2) * 6;
+      doc.rect(M, y-3, W-2*M, sectionHeight, 'F');
+      doc.setFontSize(8);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(13,27,42);
+      doc.text('LOCOMOTOR/PSYCHOMOTOR DOMAIN', M, y+5);
+      y += 8;
+      doc.setFontSize(6.5);
+      doc.setFont('helvetica','normal');
+      LOCOMOTOR_TRAITS.forEach((trait,i)=>{
+        const val=result.locomotor[normalizeTraitKey(trait)];
+        if(i%2===0 && i>0) y += 6;
+        const displayX = i%2===0 ? M+3 : W/2+3;
+        doc.setTextColor(100,120,140);
+        doc.text(trait, displayX, y);
+        doc.setTextColor(13,27,42);
+        doc.text(String(val||'-'), displayX+55, y);
+      });
+      y += 10;
+    }
+
+    if(result.teacherComment || result.principalComment){
+      if(y > pageHeight - 70){ doc.addPage(); y = 20; }
+      doc.setFontSize(8);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(13,27,42);
+      doc.text('COMMENTS', M, y+5);
+      y += 8;
+      const commentHeight = 24;
+      doc.setFillColor(245,247,250);
+      doc.rect(M, y, W-2*M, commentHeight, 'F');
+      doc.setFontSize(7);
+      doc.setFont('helvetica','normal');
+      doc.setTextColor(13,27,42);
+      doc.text(`Teacher: ${result.teacherComment || 'No comment'}`, M+3, y+6);
+      doc.text(`Principal: ${result.principalComment || 'No comment'}`, W/2+3, y+6);
+      y += commentHeight + 8;
+    }
+
+    if(y > pageHeight - 60){ doc.addPage(); y = 20; }
+    doc.setFontSize(7);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(100,120,140);
+    doc.text('Generated:', M, y+5);
+    doc.setFont('helvetica','normal');
+    doc.text(new Date().toLocaleDateString(), M+20, y+5);
+  });
+
+  const filename = `filtered-results-${schoolId||'all'}-${termFilter||'all'}-${sessionFilter||'all'}-${new Date().toISOString().slice(0,10)}.pdf`;
+  doc.save(filename);
+  showPopup(`✅ Exported ${allResults.length} results in one document`, 'success');
+}
+
+// Export/Import
+function exportAllData(){
+  const schools=getSchools();
+  const allData={schools,coupons:getCoupons(),logs:getLogs()};
+  const json=JSON.stringify(allData,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='steamhives-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+
+function simpleHash(str){
+  let hash=0;
+  for(let i=0;i<str.length;i++){
+    const char=str.charCodeAt(i);
+    hash=((hash<<5)-hash)+char;
+    hash=hash&hash;
+  }
+  return hash.toString();
+}
+
+// Beautiful Popup Functions
+function showPopup(message, type='info', title=''){
+  const modal = document.getElementById('popup-modal');
+  const icon = document.getElementById('popup-icon');
+  const titleEl = document.getElementById('popup-title');
+  const messageEl = document.getElementById('popup-message');
+  
+  // Set icon and colors based on type
+  const icons = {
+    success: '✅',
+    error: '❌',
+    warning: '⚠️',
+    info: 'ℹ️'
+  };
+  
+  icon.textContent = icons[type] || icons.info;
+  titleEl.textContent = title || (type.charAt(0).toUpperCase() + type.slice(1) + '!');
+  messageEl.textContent = message;
+  
+  modal.classList.add('open');
+}
+
+function closePopup(){
+  document.getElementById('popup-modal').classList.remove('open');
+}
+
+// Check session on load - ALWAYS show login for security
+window.addEventListener('load',()=>{
+  // Always start with login screen visible for security
+  document.getElementById('login-card-wrapper').style.display='flex';
+  document.getElementById('app-layout').style.display='none';
+  document.getElementById('dev-key').focus();
+});
+
+// Close sidebar on escape
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSidebar()});
+</script>
+</body>
+</html>

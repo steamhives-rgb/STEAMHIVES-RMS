@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>STEAMhives RMS - Developer Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--primary:#0a6640;--primary-mid:#0e8a54;--secondary:#c8960c;--border:#dde3ea;--surface:#f5f7fa;--white:#ffffff;--navy:#0d1b2a;--muted:#6c7a89;--danger:#c0392b;--radius:14px;--shadow:0 16px 48px rgba(0,0,0,0.12);}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--navy)}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);width:100%;max-width:980px;overflow:hidden}
+.header{padding:32px 32px 24px;border-bottom:1px solid #e6eaef;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.header h1{font-family:'Playfair Display',serif;font-size:28px;color:var(--navy)}
+.header p{color:var(--muted);font-size:14px}
+.section{padding:24px 32px}
+.form-group{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+input,select{padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--navy);background:#fff;outline:none}
+input:focus,select:focus{border-color:var(--primary)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;border:none;border-radius:10px;font-weight:700;cursor:pointer;transition:transform .2s ease,background .2s ease}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{transform:translateY(-1px);background:var(--primary-mid)}
+.btn-secondary{background:var(--secondary);color:#fff}
+.btn-outline{background:#fff;border:1.5px solid var(--primary);color:var(--primary)}
+.alert{border-radius:10px;padding:14px 16px;font-size:14px;margin-bottom:18px}
+.alert-danger{background:#fde8e8;color:var(--danger);border:1px solid rgba(192,57,43,.12)}
+.alert-success{background:#e8f5ee;color:#0a6640;border:1px solid rgba(10,102,64,.12)}
+.alert-info{background:#eef6ff;color:#1565c0;border:1px solid rgba(21,101,192,.12)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat{background:#f8fcf7;border:1px solid #e7f0ea;border-radius:14px;padding:20px}
+.stat h2{font-size:24px;color:var(--navy);margin-bottom:6px}
+.stat p{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #eef2f5}
+th{background:#f5f7fa;color:var(--muted);text-transform:uppercase;font-size:12px;letter-spacing:.5px}
+.badge{display:inline-flex;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.badge-available{background:#e8f5ee;color:#0a6640}
+.badge-used{background:#fde8e8;color:#c0392b}
+.badge-active{background:#fff8e1;color:#7a5b00}
+.badge-expired{background:#f0f0f0;color:#5c5c5c}
+@media(max-width:900px){.stats{grid-template-columns:1fr 1fr}.header{flex-direction:column;align-items:flex-start}table{font-size:13px}}
+</style>
+</head>
+<body>
+<div class="card" id="login-card">
+  <div class="header"><div><h1>🔐 Developer Admin Portal</h1><p>Restricted access - System administrators only</p></div><a href="index.html" class="btn btn-outline" style="height:42px;align-self:center">Back to Home</a></div>
+  <div class="section" id="login-screen">
+    <div id="admin-alert"></div>
+    <div style="border:2px solid var(--danger);border-radius:12px;padding:16px;margin-bottom:16px;background:#fde8e8">
+      <p style="color:var(--danger);font-size:13px;font-weight:600">⚠️ DEVELOPER ACCESS ONLY</p>
+      <p style="color:var(--danger);font-size:12px;margin-top:6px">This area is restricted to developers. Unauthorized access attempts are logged.</p>
+    </div>
+    <div class="form-group"><label>Developer Key</label><input type="password" id="dev-key" placeholder="Enter secure developer key"/></div>
+    <button class="btn btn-primary" onclick="doDeveloperLogin()">Authenticate</button>
+    <p style="margin-top:16px;color:var(--muted);font-size:12px">This interface provides full access to all school records and results. All actions are logged.</p>
+  </div>
+  <div class="section" id="admin-panel" style="display:none">
+    <div class="alert alert-success" id="admin-welcome">✓ Developer Access Granted</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
+      <button class="btn btn-primary" onclick="showAllSchools()">All Schools</button>
+      <button class="btn btn-primary" onclick="showAllResults()">All Results</button>
+      <button class="btn btn-secondary" onclick="showManageResults()">Manage Results</button>
+      <button class="btn btn-secondary" onclick="showCouponManagement()">Coupon Management</button>
+      <button class="btn btn-secondary" onclick="showAdminManagement()">Admin Management</button>
+      <button class="btn btn-outline" onclick="logoutDeveloper()" style="margin-left:auto">Logout</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><h2 id="total-schools">0</h2><p>Total Schools</p></div>
+      <div class="stat"><h2 id="total-results">0</h2><p>Total Results</p></div>
+      <div class="stat"><h2 id="total-students">0</h2><p>Students</p></div>
+      <div class="stat"><h2 id="total-coupons">0</h2><p>Coupons Generated</p></div>
+    </div>
+    <div class="section" id="admin-content"></div>
+  </div>
+</div>
+<script>
+const DB={get:(key,def=[])=>{try{return JSON.parse(localStorage.getItem(key))??def}catch{return def}},set:(key,val)=>localStorage.setItem(key,JSON.stringify(val)),getObj:(key,def={})=>{try{return JSON.parse(localStorage.getItem(key))??def}catch{return def}}};
+const SCHOOLS_KEY='sh_schools_registry';
+const SESSION_KEY='sh_dev_session';
+const DEVELOPER_KEY='DEVKEY_STEAM_2024_ADMIN'; // Secure developer key
+const RESULTS_LOG='sh_results_modification_log';
+
+let currentSession=null;
+
+function getSchools(){return DB.get(SCHOOLS_KEY,[])}
+function saveSchools(arr){DB.set(SCHOOLS_KEY,arr)}
+function schoolKey(schoolId,type){return `sh_${schoolId}_${type}`}
+function getResultsBySchool(schoolId){return DB.get(schoolKey(schoolId,'results'),[])}
+function saveResultsBySchool(schoolId,arr){DB.set(schoolKey(schoolId,'results'),arr)}
+function getStudentsBySchool(schoolId){return DB.get(schoolKey(schoolId,'students'),[])}
+
+function doDeveloperLogin(){
+  const key=document.getElementById('dev-key').value.trim();
+  const alertEl=document.getElementById('admin-alert');
+  alertEl.innerHTML='';
+  if(key!==DEVELOPER_KEY){
+    alertEl.innerHTML='<div class="alert alert-danger">❌ Invalid developer key. Access denied.</div>';
+    console.warn('[SECURITY] Failed developer login attempt');
+    return;
+  }
+  currentSession={token:Math.random().toString(36),timestamp:new Date().toISOString(),user:'developer'};
+  DB.set(SESSION_KEY,currentSession);
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('admin-panel').style.display='block';
+  loadDeveloperDashboard();
+}
+
+function logoutDeveloper(){
+  DB.set(SESSION_KEY,null);
+  currentSession=null;
+  document.getElementById('login-screen').style.display='block';
+  document.getElementById('admin-panel').style.display='none';
+  document.getElementById('dev-key').value='';
+}
+
+function loadDeveloperDashboard(){
+  const schools=getSchools();
+  let totalResults=0,totalStudents=0,subjects=new Set();
+  schools.forEach(s=>{
+    const results=getResultsBySchool(s.id);
+    const students=getStudentsBySchool(s.id);
+    totalResults+=results.length;
+    totalStudents+=students.length;
+    results.forEach(r=>{if(r.subject) subjects.add(r.subject)});
+  });
+  document.getElementById('total-schools').textContent=schools.length;
+  document.getElementById('total-results').textContent=totalResults;
+  document.getElementById('total-students').textContent=totalStudents;
+  document.getElementById('total-subjects').textContent=subjects.size;
+  
+  // Update coupon stats if elements exist
+  if(document.getElementById('total-coupons')) updateCouponStats();
+}
+
+function showAllSchools(){
+  const schools=getSchools();
+  const rows=schools.map(s=>{
+    const results=getResultsBySchool(s.id);
+    const students=getStudentsBySchool(s.id);
+    return `<tr>
+      <td>${s.name}</td><td>${students.length}</td><td>${results.length}</td>
+      <td><button class="btn btn-outline" style="font-size:12px" onclick="viewSchoolDetails('${s.id}')">View</button></td>
+    </tr>`;
+  }).join('');
+  const html=`<div style="margin-bottom:16px"><h3>All Schools (${schools.length})</h3></div>
+    <div class="table-wrap"><table><thead><tr><th>School</th><th>Students</th><th>Results</th><th>Action</th></tr></thead><tbody>${rows||'<tr><td colspan="4" style="text-align:center;color:var(--muted)">No schools found</td></tr>'}</tbody></table></div>`;
+  document.getElementById('admin-content').innerHTML=html;
+}
+
+function viewSchoolDetails(schoolId){
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  if(!school) return;
+  const results=getResultsBySchool(schoolId);
+  const students=getStudentsBySchool(schoolId);
+  const resultRows=results.map(r=>{
+    const student=students.find(st=>st.id===r.studentId);
+    return `<tr>
+      <td>${student?student.name:'Unknown'}</td><td>${student?student.adm:'-'}</td>
+      <td>${r.subject||'-'}</td><td>${r.score!=null?r.score:'-'}</td>
+      <td>${r.grade||'-'}</td>
+      <td><button class="btn btn-outline" style="font-size:11px;padding:6px 10px" onclick="editResult('${schoolId}','${r.id||''}')">Edit</button></td>
+    </tr>`;
+  }).join('');
+  const html=`
+    <div style="margin-bottom:20px">
+      <button class="btn btn-outline" onclick="showAllSchools()" style="margin-bottom:16px">← Back</button>
+      <h3>${school.name}</h3>
+      <p style="color:var(--muted);font-size:13px">Students: ${students.length} | Results: ${results.length}</p>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Student</th><th>Admission</th><th>Subject</th><th>Score</th><th>Grade</th><th>Action</th></tr></thead><tbody>${resultRows||'<tr><td colspan="6" style="text-align:center;color:var(--muted)">No results</td></tr>'}</tbody></table></div>
+    <div style="margin-top:16px"><button class="btn btn-primary" onclick="exportSchoolResults('${schoolId}')">Export Results (CSV)</button> <button class="btn btn-secondary" onclick="printSchoolResults('${schoolId}')">Print Results</button></div>
+  `;
+  document.getElementById('admin-content').innerHTML=html;
+}
+
+function showAllResults(){
+  const schools=getSchools();
+  let allResults=[];
+  schools.forEach(s=>{
+    const results=getResultsBySchool(s.id);
+    const students=getStudentsBySchool(s.id);
+    results.forEach(r=>{
+      const student=students.find(st=>st.id===r.studentId);
+      allResults.push({...r,schoolName:s.name,studentName:student?student.name:'Unknown',schoolId:s.id});
+    });
+  });
+  const rows=allResults.map(r=>`<tr>
+    <td>${r.schoolName}</td><td>${r.studentName}</td><td>${r.subject||'-'}</td>
+    <td>${r.score!=null?r.score:'-'}</td><td>${r.grade||'-'}</td>
+    <td><button class="btn btn-outline" style="font-size:11px;padding:6px 10px" onclick="editResult('${r.schoolId}','${r.id||''}')">Edit</button></td>
+  </tr>`).join('');
+  const html=`<div style="margin-bottom:16px"><h3>All Results (${allResults.length})</h3></div>
+    <div class="table-wrap"><table><thead><tr><th>School</th><th>Student</th><th>Subject</th><th>Score</th><th>Grade</th><th>Action</th></tr></thead><tbody>${rows||'<tr><td colspan="6" style="text-align:center;color:var(--muted)">No results</td></tr>'}</tbody></table></div>
+    <div style="margin-top:16px"><button class="btn btn-secondary" onclick="exportAllResults()">Export All (CSV)</button> <button class="btn btn-secondary" onclick="printAllResults()">Print All</button></div>`;
+  document.getElementById('admin-content').innerHTML=html;
+}
+
+function showCouponManagement(){
+  const html=`
+    <div style="margin-bottom:20px"><h3>Coupon Management</h3><p style="color:var(--muted);font-size:13px">Generate and manage access coupons for schools</p></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+      <div style="border:1px solid var(--border);border-radius:10px;padding:20px">
+        <h4 style="margin-bottom:16px">Generate New Coupons</h4>
+        <div class="form-group"><label>Coupon Type</label>
+          <select id="coupon-type" style="width:100%">
+            <option value="trial">Trial (30 days)</option>
+            <option value="term">Termly (4 months)</option>
+            <option value="session">Session (10 months)</option>
+            <option value="premium">Premium (Full year)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Quantity</label><input type="number" id="coupon-qty" value="1" min="1" style="width:100%"/></div>
+        <button class="btn btn-primary" onclick="generateCoupons()" style="width:100%">Generate Coupons</button>
+      </div>
+      <div style="border:1px solid var(--border);border-radius:10px;padding:20px">
+        <h4 style="margin-bottom:16px">Coupon Statistics</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="text-align:center;padding:12px;background:#f8fcf7;border-radius:8px">
+            <div style="font-size:20px;font-weight:700;color:var(--navy)" id="total-coupons">0</div>
+            <div style="font-size:12px;color:var(--muted)">Total Generated</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:#fff8e1;border-radius:8px">
+            <div style="font-size:20px;font-weight:700;color:var(--navy)" id="used-coupons">0</div>
+            <div style="font-size:12px;color:var(--muted)">Used</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:20px">
+      <button class="btn btn-outline" onclick="viewAllCoupons()">View All Coupons</button>
+    </div>
+    <div id="coupons-content" style="margin-top:16px"></div>
+  `;
+  document.getElementById('admin-content').innerHTML=html;
+  updateCouponStats();
+}
+
+function showAdminManagement(){
+  const schools=getSchools();
+  const html=`
+    <div style="margin-bottom:20px"><h3>Admin Management</h3><p style="color:var(--muted);font-size:13px">Manage school administrators and their access</p></div>
+    <div class="table-wrap"><table><thead><tr><th>School</th><th>Admin Status</th><th>Subscription</th><th>Actions</th></tr></thead><tbody>${
+      schools.map(s=>`<tr>
+        <td>${s.name}</td>
+        <td><span class="badge badge-available">Active</span></td>
+        <td>${s.subscriptionType||'trial'}</td>
+        <td>
+          <button class="btn btn-outline" style="font-size:11px;padding:6px 10px" onclick="resetAdminPassword('${s.id}')">Reset Password</button>
+          <button class="btn btn-outline" style="font-size:11px;padding:6px 10px" onclick="revokeAdminLicense('${s.id}')">Revoke License</button>
+          <button class="btn btn-outline" style="font-size:11px;padding:6px 10px" onclick="loginAsAdmin('${s.id}')">Login As</button>
+        </td>
+      </tr>`).join('')
+    }</tbody></table></div>
+  `;
+  document.getElementById('admin-content').innerHTML=html;
+}
+
+function generateCoupons(){
+  const type = document.getElementById('coupon-type').value;
+  const qty = parseInt(document.getElementById('coupon-qty').value,10) || 1;
+  const coupons = getCoupons();
+  for(let i=0;i<qty;i++){
+    const code = type.toUpperCase() + '-' + Date.now().toString().slice(-4) + '-' + Math.random().toString(36).slice(2,7).toUpperCase();
+    coupons.push({code,type,used:false,generatedDate:new Date().toISOString()});
+  }
+  saveCoupons(coupons);
+  alert(`Generated ${qty} ${type} coupon(s).`);
+  updateCouponStats();
+  viewAllCoupons();
+}
+
+function updateCouponStats(){
+  const coupons = getCoupons();
+  document.getElementById('total-coupons').textContent = coupons.length;
+  document.getElementById('used-coupons').textContent = coupons.filter(c=>c.used).length;
+}
+
+function viewAllCoupons(){
+  const coupons = getCoupons();
+  const html = '<div class="table-wrap"><table><thead><tr><th>Code</th><th>Type</th><th>Status</th><th>Used By</th><th>Date</th></tr></thead><tbody>' +
+    coupons.map(c=>'<tr><td><code>'+c.code+'</code></td><td>'+c.type+'</td><td><span class="badge '+(c.used?'badge-used':'badge-available')+'">'+(c.used?'Used':'Available')+'</span></td><td>'+(c.usedBy||'-')+'</td><td>'+(c.used?new Date(c.usedDate).toLocaleDateString():new Date(c.generatedDate).toLocaleDateString())+'</td></tr>').join('') +
+    '</tbody></table></div>';
+  document.getElementById('coupons-content').innerHTML = html;
+}
+
+function resetAdminPassword(schoolId){
+  const newPass = prompt('Enter new password for this admin:');
+  if(!newPass) return;
+  const schools = getSchools();
+  const school = schools.find(s=>s.id===schoolId);
+  if(school){
+    school.passHash = simpleHash(newPass);
+    saveSchools(schools);
+    alert('Password reset successfully.');
+  }
+}
+
+function revokeAdminLicense(schoolId){
+  if(!confirm('Revoke license for this school? They will lose access.')) return;
+  const schools = getSchools();
+  const school = schools.find(s=>s.id===schoolId);
+  if(school){
+    school.subscriptionType = 'revoked';
+    saveSchools(schools);
+    alert('License revoked.');
+  }
+}
+
+function loginAsAdmin(schoolId){
+  window.location.href = 'index.html?impersonate=' + encodeURIComponent(schoolId);
+}
+
+function getCoupons(){return DB.get('sh_coupons',[])}
+function saveCoupons(arr){DB.set('sh_coupons',arr)}
+function getSubscriptions(){return DB.get('sh_subscriptions',[])}
+function saveSubscriptions(arr){DB.set('sh_subscriptions',arr)}
+
+function simpleHash(str){
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return hash.toString();
+}
+
+function editResult(schoolId,resultId){
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  const results=getResultsBySchool(schoolId);
+  const result=results.find(r=>r.id===resultId);
+  const students=getStudentsBySchool(schoolId);
+  if(!result||!school) return;
+  const student=students.find(s=>s.id===result.studentId);
+  const modalHtml=`
+    <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000" id="edit-modal" onclick="if(event.target===this)closeEditModal()">
+      <div style="background:var(--white);border-radius:16px;padding:28px;width:90%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+        <h3 style="margin-bottom:20px">Edit Result for ${student?student.name:'Unknown'}</h3>
+        <div class="form-group"><label>Subject</label><input type="text" id="edit-subject" value="${result.subject||''}" style="width:100%"/></div>
+        <div class="form-group"><label>Score</label><input type="number" id="edit-score" value="${result.score||''}" style="width:100%"/></div>
+        <div class="form-group"><label>Grade</label><input type="text" id="edit-grade" value="${result.grade||''}" style="width:100%"/></div>
+        <div class="form-group"><label>Remark</label><input type="text" id="edit-remark" value="${result.remark||''}" style="width:100%"/></div>
+        <div style="display:flex;gap:12px;margin-top:20px">
+          <button class="btn btn-primary" onclick="saveEditedResult('${schoolId}','${resultId}')">Save Changes</button>
+          <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+          <button class="btn btn-outline" style="color:var(--danger);border-color:var(--danger);margin-left:auto" onclick="deleteResult('${schoolId}','${resultId}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.innerHTML+=modalHtml;
+}
+
+function saveEditedResult(schoolId,resultId){
+  const results=getResultsBySchool(schoolId);
+  const result=results.find(r=>r.id===resultId);
+  if(!result) return;
+  result.subject=document.getElementById('edit-subject').value;
+  result.score=parseInt(document.getElementById('edit-score').value)||null;
+  result.grade=document.getElementById('edit-grade').value;
+  result.remark=document.getElementById('edit-remark').value;
+  result.modifiedDate=new Date().toISOString();
+  saveResultsBySchool(schoolId,results);
+  logModification(schoolId,resultId,'EDIT','Result modified by developer');
+  closeEditModal();
+  alert('Result saved successfully');
+  viewSchoolDetails(schoolId);
+}
+
+function deleteResult(schoolId,resultId){
+  if(!confirm('Delete this result permanently?')) return;
+  const results=getResultsBySchool(schoolId).filter(r=>r.id!==resultId);
+  saveResultsBySchool(schoolId,results);
+  logModification(schoolId,resultId,'DELETE','Result deleted by developer');
+  closeEditModal();
+  alert('Result deleted');
+  viewSchoolDetails(schoolId);
+}
+
+function closeEditModal(){
+  const modal=document.getElementById('edit-modal');
+  if(modal) modal.remove();
+}
+
+function logModification(schoolId,resultId,action,details){
+const log=DB.get(RESULTS_LOG,[]);
+  log.push({timestamp:new Date().toISOString(),schoolId,resultId,action,details,user:'developer'});
+  DB.set(RESULTS_LOG,log);
+}
+
+function exportAllResults(){
+  const schools=getSchools();
+  let csv='School,Student,Subject,Score,Grade,Remark,Modified Date\n';
+  schools.forEach(s=>{
+    const results=getResultsBySchool(s.id);
+    const students=getStudentsBySchool(s.id);
+    results.forEach(r=>{
+      const student=students.find(st=>st.id===r.studentId);
+      csv+=`${s.name},"${student?student.name:'Unknown'}","${r.subject||'-'}",${r.score||'-'},"${r.grade||'-'}","${r.remark||'-'}","${r.modifiedDate||'-'}"\n`;
+    });
+  });
+  downloadFile(csv,'all_results.csv','text/csv');
+}
+
+function exportSchoolResults(schoolId){
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  const results=getResultsBySchool(schoolId);
+  const students=getStudentsBySchool(schoolId);
+  let csv='School,Student,Admission,Subject,Score,Grade,Remark,Modified Date\n';
+  results.forEach(r=>{
+    const student=students.find(s=>s.id===r.studentId);
+    csv+=`${school.name},"${student?student.name:'Unknown'}","${student?student.adm:'-'}","${r.subject||'-'}",${r.score||'-'},"${r.grade||'-'}","${r.remark||'-'}","${r.modifiedDate||'-'}"\n`;
+  });
+  downloadFile(csv,`${school.name.replace(/\s+/g,'_')}_results.csv`,'text/csv');
+}
+
+function printSchoolResults(schoolId){
+  const schools=getSchools();
+  const school=schools.find(s=>s.id===schoolId);
+  const results=getResultsBySchool(schoolId);
+  const students=getStudentsBySchool(schoolId);
+  let html=`<h2>${school.name} - Results Report</h2><p>Generated: ${new Date().toLocaleString()}</p><table border="1" cellpadding="8"><thead><tr><th>Student</th><th>Admission</th><th>Subject</th><th>Score</th><th>Grade</th><th>Remark</th></tr></thead><tbody>`;
+  results.forEach(r=>{
+    const student=students.find(s=>s.id===r.studentId);
+    html+=`<tr><td>${student?student.name:'Unknown'}</td><td>${student?student.adm:'-'}</td><td>${r.subject||'-'}</td><td>${r.score||'-'}</td><td>${r.grade||'-'}</td><td>${r.remark||'-'}</td></tr>`;
+  });
+  html+='</tbody></table>';
+  const win=window.open('','print');
+  win.document.write(html);
+  win.document.close();
+  win.print();
+}
+
+function printAllResults(){
+  const schools=getSchools();
+  let html=`<h2>All Schools Results Report</h2><p>Generated: ${new Date().toLocaleString()}</p>`;
+  schools.forEach(s=>{
+    const results=getResultsBySchool(s.id);
+    const students=getStudentsBySchool(s.id);
+    html+=`<h3>${s.name}</h3><table border="1" cellpadding="8"><thead><tr><th>Student</th><th>Subject</th><th>Score</th><th>Grade</th></tr></thead><tbody>`;
+    results.forEach(r=>{
+      const student=students.find(st=>st.id===r.studentId);
+      html+=`<tr><td>${student?student.name:'Unknown'}</td><td>${r.subject||'-'}</td><td>${r.score||'-'}</td><td>${r.grade||'-'}</td></tr>`;
+    });
+    html+='</tbody></table>';
+  });
+  const win=window.open('','print');
+  win.document.write(html);
+  win.document.close();
+  win.print();
+}
+
+function downloadFile(data,filename,type){
+  const blob=new Blob([data],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Check session on load
+if(!currentSession){
+  const session=DB.getObj(SESSION_KEY,null);
+  if(session) currentSession=session;
+}
+</script>
+</body>
+</html>

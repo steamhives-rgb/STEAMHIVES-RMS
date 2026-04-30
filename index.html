@@ -111,8 +111,11 @@ body.dark{background:var(--bg-primary-dark);color:var(--text-primary-dark)}
 
 /* ── STATS ── */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px}
-.stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;cursor:pointer;transition:all 0.3s ease;user-select:none}
+.stat-card:hover{border-color:var(--primary);box-shadow:0 8px 24px rgba(10,102,64,0.15);transform:translateY(-4px)}
+.stat-card:active{transform:translateY(-2px)}
+.stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform 0.3s ease}
+.stat-card:hover .stat-icon{transform:scale(1.1)}
 .stat-val{font-size:26px;font-weight:700;color:var(--navy);line-height:1}
 .stat-lbl{font-size:12px;color:var(--muted);margin-top:2px}
 
@@ -132,13 +135,19 @@ input[type=color]{padding:4px 6px;height:36px;cursor:pointer}
 textarea{resize:vertical;min-height:70px}
 
 /* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:7px;font-family:'Montserrat',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
-.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-mid)}
-.btn-gold{background:var(--secondary);color:#fff}.btn-gold:hover{background:#b8860a}
-.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--slate)}.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
-.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#a93226}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:7px;font-family:'Montserrat',sans-serif;font-size:13.5px;font-weight:600;cursor:pointer;border:none;transition:all .2s;user-select:none;-webkit-touch-callout:none;-webkit-user-select:none}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-mid)}.btn-primary:active{background:var(--primary)}
+.btn-gold{background:var(--secondary);color:#fff}.btn-gold:hover{background:#b8860a}.btn-gold:active{background:var(--secondary)}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--slate)}.btn-outline:hover{border-color:var(--primary);color:var(--primary)}.btn-outline:active{background:rgba(10,102,64,0.05)}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#a93226}.btn-danger:active{background:var(--danger)}
 .btn-sm{padding:6px 12px;font-size:12px}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.quick-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.quick-action-btn{padding:14px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);cursor:pointer;transition:all 0.3s ease;display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;color:var(--navy);text-align:center;justify-content:center;user-select:none}
+.quick-action-btn:hover{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+.quick-action-btn:active{transform:scale(0.97)}
+.quick-action-btn .icon{font-size:18px}
 
 /* ── TABLE ── */
 .tbl-wrap{overflow-x:auto}
@@ -150,13 +159,19 @@ tr:last-child td{border-bottom:none}
 
 /* ── ATTENDANCE CHECKBOX BUTTONS ── */
 .att-checkbox-group{display:flex;gap:4px;flex-wrap:nowrap}
-.att-checkbox-btn{flex:1;min-width:60px;padding:6px 8px;border:2px solid #ddd;border-radius:6px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;transition:all .2s;background:#fff;color:#555}
+.att-checkbox-btn{flex:1;min-width:60px;padding:6px 8px;border:2px solid #ddd;border-radius:6px;font-size:11px;font-weight:600;text-align:center;cursor:pointer;transition:all .2s;background:#fff;color:#555;user-select:none;-webkit-user-select:none}
 .att-checkbox-btn.present{border-color:#27ae60;background:#d4edda;color:#27ae60}
 .att-checkbox-btn.absent{border-color:#e74c3c;background:#fde8e8;color:#e74c3c}
 .att-checkbox-btn.late{border-color:#f39c12;background:#fff8e1;color:#f39c12}
 .att-checkbox-btn.holiday{border-color:#95a5a6;background:#ecf0f1;color:#95a5a6}
 .att-checkbox-btn:hover{opacity:0.8;transform:scale(1.05)}
+.att-checkbox-btn:active{transform:scale(0.98)}
 .att-checkbox-btn.checked{font-weight:700;border-width:3px;box-shadow:0 0 8px rgba(0,0,0,0.15)}
+
+/* ── ANALYTICS GRID ── */
+.analytics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.analytics-grid .analytics-card{transition:transform 0.2s ease}
+.analytics-grid .analytics-card:hover{transform:translateY(-2px)}
 
 /* ── STICKY COLUMNS ── */
 .att-table-wrapper{overflow-x:auto;position:relative}
@@ -240,10 +255,17 @@ tr:last-child td{border-bottom:none}
 
   /* Stats */
   .stats-row{grid-template-columns:1fr 1fr;gap:12px}
-  .stat-card{padding:16px 18px}
-  .stat-icon{width:40px;height:40px}
+  .stat-card{padding:16px 18px;gap:10px}
+  .stat-icon{width:40px;height:40px;font-size:18px}
   .stat-val{font-size:22px}
   .stat-lbl{font-size:11px}
+  
+  /* Quick Actions */
+  .quick-actions{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
+  .quick-action-btn{padding:12px 10px;font-size:12px;gap:6px}
+  
+  /* Analytics */
+  .analytics-grid{grid-template-columns:repeat(2,1fr);gap:10px}
 
   /* Forms */
   .form-grid{grid-template-columns:1fr;gap:12px}
@@ -306,6 +328,16 @@ tr:last-child td{border-bottom:none}
   .stats-row{grid-template-columns:1fr}
   .stat-card{flex-direction:column;text-align:center;gap:8px;padding:14px 16px}
   .stat-icon{margin:0 auto}
+  
+  /* Quick Actions */
+  .quick-actions{grid-template-columns:1fr;gap:8px;margin-bottom:16px}
+  .quick-action-btn{padding:12px;font-size:12px;gap:6px;flex-direction:column}
+  
+  /* Analytics */
+  .analytics-grid{grid-template-columns:1fr;gap:8px}
+  .analytics-card{padding:10px !important;font-size:11px !important}
+  .analytics-card > div:first-child{font-size:18px !important;font-weight:700}
+  .analytics-card > div:last-child{font-size:9px}
 
   .form-grid-3{grid-template-columns:1fr}
 
@@ -441,10 +473,16 @@ tr:last-child td{border-bottom:none}
     <div class="page active" id="page-dashboard">
       <div id="dash-alert"></div>
       <div class="stats-row">
-        <div class="stat-card"><div class="stat-icon" style="background:#e8f5ee">🎓</div><div><div class="stat-val" id="s-students">0</div><div class="stat-lbl">Students</div></div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:#fff8e1">📝</div><div><div class="stat-val" id="s-results">0</div><div class="stat-lbl">Results</div></div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:#e3f0ff">🏫</div><div><div class="stat-val" id="s-classes">0</div><div class="stat-lbl">Classes</div></div></div>
-        <div class="stat-card"><div class="stat-icon" style="background:#fde8e8">📊</div><div><div class="stat-val" id="s-avg">—</div><div class="stat-lbl">School Avg</div></div></div>
+        <div class="stat-card" onclick="showPage('addstudent',document.querySelectorAll('.nav-item')[1])"><div class="stat-icon" style="background:#e8f5ee">🎓</div><div><div class="stat-val" id="s-students">0</div><div class="stat-lbl">Students</div></div></div>
+        <div class="stat-card" onclick="showPage('enterresult',document.querySelectorAll('.nav-item')[5])"><div class="stat-icon" style="background:#fff8e1">📝</div><div><div class="stat-val" id="s-results">0</div><div class="stat-lbl">Results</div></div></div>
+        <div class="stat-card" onclick="showPage('attendance',document.querySelectorAll('.nav-item')[4])"><div class="stat-icon" style="background:#e3f0ff">✓</div><div><div class="stat-val" id="s-classes">0</div><div class="stat-lbl">Attendance</div></div></div>
+        <div class="stat-card" onclick="alert('School Average: ' + document.getElementById('s-avg').innerText)"><div class="stat-icon" style="background:#fde8e8">📈</div><div><div class="stat-val" id="s-avg">—</div><div class="stat-lbl">School Avg</div></div></div>
+      </div>
+      <div class="quick-actions">
+        <button class="quick-action-btn" onclick="showPage('addstudent',document.querySelectorAll('.nav-item')[1])"><span class="icon">➕</span><span>Add Student</span></button>
+        <button class="quick-action-btn" onclick="showPage('enterresult',document.querySelectorAll('.nav-item')[5])"><span class="icon">📝</span><span>Enter Result</span></button>
+        <button class="quick-action-btn" onclick="showPage('attendance',document.querySelectorAll('.nav-item')[4])"><span class="icon">✓</span><span>Attendance</span></button>
+        <button class="quick-action-btn" onclick="showPage('exportresults',document.querySelectorAll('.nav-item')[6])"><span class="icon">📄</span><span>Export</span></button>
       </div>
       <div class="card">
         <div class="card-title">Recent Students</div>
@@ -2536,26 +2574,26 @@ function showAttendanceAnalytics(){
   let html = `
     <div class="card">
       <div class="card-title">📈 ${week} Analytics</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px">
-        <div style="background:#d4edda;padding:12px;border-radius:8px;text-align:center">
+      <div class="analytics-grid">
+        <div class="analytics-card" style="background:#d4edda;padding:12px;border-radius:8px;text-align:center">
           <div style="font-size:24px;font-weight:700;color:#27ae60">${classPresentTotal}</div>
           <div style="font-size:11px;color:#666">Total Present</div>
         </div>
-        <div style="background:#fde8e8;padding:12px;border-radius:8px;text-align:center">
+        <div class="analytics-card" style="background:#fde8e8;padding:12px;border-radius:8px;text-align:center">
           <div style="font-size:24px;font-weight:700;color:#e74c3c">${classAbsentTotal}</div>
           <div style="font-size:11px;color:#666">Total Absent</div>
         </div>
-        <div style="background:#fff8e1;padding:12px;border-radius:8px;text-align:center">
+        <div class="analytics-card" style="background:#fff8e1;padding:12px;border-radius:8px;text-align:center">
           <div style="font-size:24px;font-weight:700;color:#f39c12">${classLateTotal}</div>
           <div style="font-size:11px;color:#666">Total Late</div>
         </div>
-        <div style="background:#ecf0f1;padding:12px;border-radius:8px;text-align:center">
+        <div class="analytics-card" style="background:#ecf0f1;padding:12px;border-radius:8px;text-align:center">
           <div style="font-size:24px;font-weight:700;color:#95a5a6">${classHolidayTotal}</div>
           <div style="font-size:11px;color:#666">Holidays</div>
         </div>
-        <div style="background:#e3f0ff;padding:12px;border-radius:8px;text-align:center">
+        <div class="analytics-card" style="background:#e3f0ff;padding:12px;border-radius:8px;text-align:center;grid-column:1/-1">
           <div style="font-size:24px;font-weight:700;color:#3498db">${attendanceRate}%</div>
-          <div style="font-size:11px;color:#666">Attendance Rate</div>
+          <div style="font-size:11px;color:#666">Overall Attendance Rate</div>
         </div>
       </div>
       <div class="card-title" style="border:none;margin-top:20px;margin-bottom:10px">Student Breakdown</div>

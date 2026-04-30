@@ -380,6 +380,218 @@ tr:last-child td{border-bottom:none}
   .passport-box{width:70px;height:90px}
 }
 
+/* ── GLOBAL FIXES ── */
+*{
+  box-sizing:border-box;
+}
+
+body{
+  overflow-x:hidden;
+}
+
+/* ── TOPBAR FIX ── */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 16px;
+  flex-wrap:nowrap;
+}
+
+.topbar-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.dark-toggle{
+  margin-left:auto;
+}
+
+/* ── HAMBURGER FIX ── */
+.hamburger{
+  display:flex;
+  width:32px;
+  height:32px;
+  flex-direction:column;
+  justify-content:space-between;
+  cursor:pointer;
+  position:fixed;
+  top:16px;
+  left:16px;
+  z-index:9999; /* FIX: ensure clickable */
+  background:var(--white);
+  border-radius:6px;
+  padding:6px;
+  border:1px solid var(--border);
+}
+
+.hamburger span{
+  height:3px;
+  background:var(--navy);
+  border-radius:2px;
+  transition:all 0.3s;
+}
+
+.hamburger.active span:nth-child(1){
+  transform:rotate(45deg) translate(6px,6px);
+}
+.hamburger.active span:nth-child(2){
+  opacity:0;
+}
+.hamburger.active span:nth-child(3){
+  transform:rotate(-45deg) translate(6px,-6px);
+}
+
+/* ── SIDEBAR FIX ── */
+.sidebar{
+  width:260px;
+  background:var(--navy);
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  transform:translateX(-100%);
+  transition:transform 0.3s ease;
+  z-index:100;
+  visibility:hidden;
+  pointer-events:none;
+}
+
+.sidebar.open{
+  transform:translateX(0);
+  visibility:visible;
+  pointer-events:auto;
+}
+
+/* Prevent blocking */
+.main{
+  margin-left:0;
+}
+
+/* ── GRID SYSTEM ── */
+.stats-row{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.stat-card{
+  padding:14px;
+  border-radius:12px;
+}
+
+/* ── TABLET ── */
+@media (max-width:900px){
+  .form-grid{grid-template-columns:1fr}
+  .affective-grid{grid-template-columns:1fr 1fr}
+}
+
+/* ── MOBILE ── */
+@media (max-width:768px){
+
+  .content{padding:16px}
+
+  .stats-row{
+    grid-template-columns:1fr 1fr; /* FORCE 2 columns */
+  }
+
+  .quick-actions{
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+  }
+
+  .analytics-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .form-grid-3{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .btn-row{
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .btn-row .btn{
+    width:100%;
+    height:44px;
+  }
+
+  .tbl-wrap{
+    overflow-x:auto;
+  }
+
+  .affective-grid{
+    grid-template-columns:1fr;
+  }
+
+  .modal{
+    width:95%;
+    max-width:480px;
+  }
+}
+
+/* ── SMALL MOBILE ── */
+@media (max-width:480px){
+
+  .topbar{
+    flex-direction:row; /* FIX: prevent stacking */
+    justify-content:space-between;
+    align-items:center;
+  }
+
+  .stats-row{
+    grid-template-columns:1fr 1fr; /* KEEP 2 columns */
+  }
+
+  .quick-actions{
+    grid-template-columns:1fr;
+  }
+
+  .analytics-grid{
+    grid-template-columns:1fr;
+  }
+
+  .form-grid-3{
+    grid-template-columns:1fr;
+  }
+
+  table{
+    font-size:11px;
+  }
+
+  th,td{
+    padding:6px 8px;
+  }
+
+  .btn{
+    font-size:13px;
+    padding:10px;
+  }
+
+  .modal{
+    width:98%;
+    padding:16px;
+  }
+
+  .img-box{
+    width:70px;
+    height:70px;
+  }
+
+  .passport-box{
+    width:70px;
+    height:90px;
+  }
+}
+
+
 </style>
 </head>
 <body>

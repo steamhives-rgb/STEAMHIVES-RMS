@@ -227,129 +227,141 @@ tr:last-child td{border-bottom:none}
 .passport-box img{width:100%;height:100%;object-fit:cover}
 .score-summary-bar{display:flex;gap:24px;flex-wrap:wrap;padding:14px;background:var(--surface);border-radius:8px;margin-top:14px}
 
-@media(max-width:900px){.stats-row{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.affective-grid{grid-template-columns:1fr 1fr}}
+/* ── TABLET (≤900px) ── */
+@media (max-width: 900px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .affective-grid{grid-template-columns:1fr 1fr}
+}
 
-/* ── RESPONSIVE DESIGN ── */
-@media(max-width:768px){
-  /* Hamburger Menu */
-  .hamburger{display:flex;width:32px;height:32px;flex-direction:column;justify-content:space-between;cursor:pointer;position:fixed;top:16px;left:16px;z-index:101;background:var(--white);border-radius:6px;padding:6px;border:1px solid var(--border)}
-  .hamburger span{height:3px;background:var(--navy);border-radius:2px;transition:all 0.3s}
-  .hamburger.active span:nth-child(1){transform:rotate(45deg) translate(8px,8px)}
+/* ── MOBILE (≤768px) ── */
+@media (max-width: 768px){
+
+  /* Hamburger */
+  .hamburger{
+    display:flex;
+    width:32px;height:32px;
+    flex-direction:column;
+    justify-content:space-between;
+    cursor:pointer;
+    position:fixed;
+    top:16px;left:16px;
+    z-index:101;
+    background:var(--white);
+    border-radius:6px;
+    padding:6px;
+    border:1px solid var(--border)
+  }
+  .hamburger span{
+    height:3px;
+    background:var(--navy);
+    border-radius:2px;
+    transition:all 0.3s
+  }
+
+  .hamburger.active span:nth-child(1){
+    transform:rotate(45deg) translate(6px,6px)
+  }
   .hamburger.active span:nth-child(2){opacity:0}
-  .hamburger.active span:nth-child(3){transform:rotate(-45deg) translate(8px,-8px)}
+  .hamburger.active span:nth-child(3){
+    transform:rotate(-45deg) translate(6px,-6px)
+  }
 
   /* Sidebar */
-  .sidebar{width:260px;background:var(--navy);position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto;transition:transform 0.3s ease;transform:translateX(-100%)}
+  .sidebar{
+    width:260px;
+    position:fixed;
+    top:0;left:0;bottom:0;
+    transform:translateX(-100%);
+    transition:transform 0.3s ease;
+  }
   .sidebar.open{transform:translateX(0)}
-  .sidebar-brand{padding:20px 20px 16px}
-  .sidebar-brand h1{font-size:16px}
-  .sidebar-nav{padding:12px 0}
-  .nav-item{padding:12px 20px;font-size:14px}
-  .sidebar-footer{padding:12px 20px;font-size:9px}
 
-  /* Main Layout */
+  /* Layout */
   .main{margin-left:0}
   .topbar{padding:12px 16px}
-  .topbar-title{font-size:18px}
   .content{padding:16px}
 
   /* Stats */
   .stats-row{grid-template-columns:1fr 1fr;gap:12px}
-  .stat-card{padding:16px 18px;gap:10px}
-  .stat-icon{width:40px;height:40px;font-size:18px}
-  .stat-val{font-size:22px}
-  .stat-lbl{font-size:11px}
-  
-  /* Quick Actions */
-  .quick-actions{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
-  .quick-action-btn{padding:12px 10px;font-size:12px;gap:6px}
-  
+
+  /* Actions */
+  .quick-actions{grid-template-columns:repeat(2,1fr)}
+
   /* Analytics */
-  .analytics-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .analytics-grid{grid-template-columns:1fr 1fr}
 
   /* Forms */
-  .form-grid{grid-template-columns:1fr;gap:12px}
-  .form-grid-3{grid-template-columns:1fr 1fr;gap:12px}
-  .form-group.full{grid-column:1/-1}
-
-  /* Cards */
-  .card{padding:16px 18px;margin-bottom:16px}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid-3{grid-template-columns:1fr 1fr}
 
   /* Tables */
   .tbl-wrap{overflow-x:auto}
-  table{font-size:12px}
-  th,td{padding:8px 10px}
 
   /* Buttons */
-  .btn-row{flex-direction:column;gap:8px}
-  .btn-row .btn{width:100%;justify-content:center}
-
-  /* Search */
-  .search-bar{flex-direction:column;gap:10px;align-items:stretch}
-  .search-bar input{min-width:auto}
-
-  /* Tabs */
-  .tabs{flex-direction:column;gap:2px}
-  .tab{padding:10px 16px}
+  .btn-row{
+    flex-direction:column;
+    gap:10px
+  }
+  .btn-row .btn{
+    width:100%;
+    height:44px; /* touch-friendly */
+  }
 
   /* Affective */
-  .affective-grid{grid-template-columns:1fr;gap:12px}
+  .affective-grid{grid-template-columns:1fr}
 
   /* Modal */
-  .modal{width:95%;max-width:480px;padding:20px}
-  .modal h2{font-size:16px;margin-bottom:12px}
-
-  /* Score Summary */
-  .score-summary-bar{flex-direction:column;gap:12px;padding:12px}
-  .score-summary-bar > div{display:flex;justify-content:space-between;align-items:center}
-  .score-summary-bar > div > div:first-child{font-size:10px}
-  .score-summary-bar > div > div:last-child{font-size:18px}
-
-  /* Image Boxes */
-  .img-box{width:80px;height:80px}
-  .passport-box{width:80px;height:100px}
-  .img-box-label{font-size:10px}
-
-  /* Color Picker */
-  #color-swatch{width:140px;height:40px}
+  .modal{
+    width:95%;
+    max-width:480px;
+  }
 }
 
-@media(max-width:480px){
-  /* Extra small screens */
-  .login-card{padding:32px 24px;width:95%;max-width:380px}
-  .login-logo h1{font-size:22px}
-  .school-item{padding:10px 12px}
-  .school-item-name{font-size:13px}
-  .new-school-form .form-group{flex-direction:column;gap:4px}
+/* ── SMALL MOBILE (≤480px) ── */
+@media (max-width: 480px){
 
-  .topbar{flex-direction:column;gap:8px;align-items:flex-start}
-  .topbar-title{margin-bottom:4px}
+  /* Layout */
+  .topbar{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
+  }
 
+  /* Stats */
   .stats-row{grid-template-columns:1fr}
-  .stat-card{flex-direction:column;text-align:center;gap:8px;padding:14px 16px}
-  .stat-icon{margin:0 auto}
-  
-  /* Quick Actions */
-  .quick-actions{grid-template-columns:1fr;gap:8px;margin-bottom:16px}
-  .quick-action-btn{padding:12px;font-size:12px;gap:6px;flex-direction:column}
-  
-  /* Analytics */
-  .analytics-grid{grid-template-columns:1fr;gap:8px}
-  .analytics-card{padding:10px !important;font-size:11px !important}
-  .analytics-card > div:first-child{font-size:18px !important;font-weight:700}
-  .analytics-card > div:last-child{font-size:9px}
+  .stat-card{
+    flex-direction:column;
+    text-align:center;
+  }
 
+  /* Actions */
+  .quick-actions{grid-template-columns:1fr}
+
+  /* Analytics */
+  .analytics-grid{grid-template-columns:1fr}
+
+  /* Forms */
   .form-grid-3{grid-template-columns:1fr}
 
-  .tabs .tab{font-size:12px;padding:8px 12px}
-
-  .modal{width:98%;padding:16px}
-  .modal h2{font-size:14px}
-
-  .btn-row .btn{font-size:12px;padding:8px 16px}
-
+  /* Tables */
   table{font-size:11px}
-  th,td{padding:6px 8px}
+
+  /* Buttons */
+  .btn{
+    font-size:13px;
+    padding:10px;
+  }
+
+  /* Modal */
+  .modal{
+    width:98%;
+    padding:16px;
+  }
+
+  /* Images */
+  .img-box{width:70px;height:70px}
+  .passport-box{width:70px;height:90px}
 }
 </style>
 </head>

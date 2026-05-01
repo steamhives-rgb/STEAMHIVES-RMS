@@ -10,8 +10,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
-  --primary:#0a6640;--primary-mid:#0e8a54;--primary-light:#d4edda;
-  --secondary:#c8960c;--secondary-light:#fff8e1;
+  --primary:#FB6E22;--primary-mid:#fb6e2284;--primary-light:#86d5ffbf;
+  --secondary:#22affb;--secondary-light:#fff8e1;
   --navy:#0d1b2a;--slate:#1e2d3d;--muted:#6c7a89;
   --border:#dde3ea;--surface:#f5f7fa;--white:#ffffff;
   --danger:#c0392b;--text:#1a2332;--radius:10px;
@@ -76,6 +76,7 @@ body.dark{background:var(--bg-primary-dark);color:var(--text-primary-dark)}
   padding:44px 40px;width:100%;max-width:420px;
   box-shadow:0 24px 64px rgba(0,0,0,0.4);
 }
+
 .login-logo{text-align:center;margin-bottom:28px}
 .login-logo h1{font-family:'Playfair Display',serif;font-size:26px;color:var(--navy)}
 .login-logo p{font-size:12px;color:var(--muted);margin-top:4px}
@@ -114,7 +115,7 @@ body.dark{background:var(--bg-primary-dark);color:var(--text-primary-dark)}
   border-left:3px solid transparent
 }
 .nav-item:hover{background:rgba(255,255,255,0.06);color:#fff}
-.nav-item.active{background:rgba(200,150,12,0.15);color:var(--secondary);border-left-color:var(--secondary)}
+.nav-item.active{background:#FB6E22;color:var(--text-primary-dark);border-left-color:var(--secondary)}
 .sidebar-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,0.08);font-size:10px;color:rgba(255,255,255,0.25)}
 .main{margin-left:240px;flex:1;display:flex;flex-direction:column;overflow-y:auto;min-height:100vh}
 .hamburger{display:none} /* hidden on desktop, shown in mobile media query */
@@ -437,8 +438,8 @@ tr:last-child td{border-bottom:none}
       <p style="font-size:12px;color:var(--muted);margin-top:8px">Students: <a href="student_access.html" style="color:var(--primary);font-weight:700">Access results with your pin</a></p>
     </div>
     <div id="school-login-section">
-      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;font-weight:600;">SELECT YOUR SCHOOL</p>
-      <div id="school-list"></div>
+      <p style="font-size:13px;color:var(--sidebar-bg-dark);margin-bottom:12px;font-weight:600;">SELECT YOUR SCHOOL</p>
+      <div class="current-school" id="school-list"></div>
       <button class="btn btn-outline btn-sm" style="width:100%;margin-top:12px" onclick="toggleNewSchoolForm()">➕ Register New School with Coupon</button>
     </div>
     <div id="new-school-form" class="new-school-form" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
